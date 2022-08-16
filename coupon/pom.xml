@@ -11,7 +11,7 @@
     <groupId>com.xunqi.gulimall</groupId>
     <artifactId>gulimall-coupon</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>gulimall-coupon</name>
+    <name>coupon</name>
     <description>谷粒商城-优惠卷服务</description>
 
     <properties>
@@ -34,11 +34,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
     </dependencies>
