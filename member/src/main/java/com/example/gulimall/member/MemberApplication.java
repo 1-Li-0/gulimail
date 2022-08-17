@@ -1,13 +1,13 @@
-package com.example.ware;
+package com.example.gulimall.member;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class WareApplication {
+public class MemberApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(WareApplication.class, args);
+        SpringApplication.run(MemberApplication.class, args);
     }
 
 }

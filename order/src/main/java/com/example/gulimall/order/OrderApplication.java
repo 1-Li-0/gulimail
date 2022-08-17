@@ -1,14 +1,13 @@
-package com.example.coupon;
-
+package com.example.gulimall.order;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CouponApplication {
+public class OrderApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CouponApplication.class, args);
+        SpringApplication.run(OrderApplication.class, args);
     }
 
 }

@@ -1,13 +1,14 @@
-package com.example.member;
+package com.example.gulimall.coupon;
+
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MemberApplication {
+public class CouponApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MemberApplication.class, args);
+        SpringApplication.run(CouponApplication.class, args);
     }
 
 }
