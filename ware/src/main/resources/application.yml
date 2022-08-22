@@ -4,6 +4,12 @@ spring:
     password: root
     url: jdbc:mysql://192.168.12.128:3306/gulimall_wms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
     driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+  application:
+    name: ware
 
 mybatis-plus:
   mapper-locations:
