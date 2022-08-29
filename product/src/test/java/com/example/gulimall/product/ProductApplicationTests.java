@@ -28,5 +28,4 @@ public class ProductApplicationTests {
             System.out.println(item);
         });
     }
-
 }

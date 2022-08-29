@@ -57,6 +57,12 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+        <!--使用fastDFS完成文件的上传和下载-->
+        <dependency>
+            <groupId>org.csource</groupId>
+            <artifactId>fastdfs-client-java</artifactId>
+            <version>1.29-RELEASE</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
