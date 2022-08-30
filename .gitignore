@@ -12,6 +12,7 @@ buildNumber.properties
 
 **/mvnw
 **/mvnw.cmd
+**/*.iml
 
 **/.mvn
 **/target/
