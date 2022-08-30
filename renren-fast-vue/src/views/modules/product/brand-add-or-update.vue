@@ -11,7 +11,7 @@
       <el-form-item label="品牌logo地址" prop="logo">
         <el-upload
           class="upload-demo"
-          action=""
+          action="/fastDFS/upload"
           :multiple="false"
           :on-change="handleChange"
           :file-list="fileList">
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     handleChange(file, fileList) {
-      this.fileList = fileList.slice(-3);
+      this.fileList = fileList.slice(-1);
     },
 
     init(id) {
