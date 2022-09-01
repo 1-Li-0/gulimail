@@ -14,13 +14,6 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
 
-        - id: fastDFS_route
-            uri: lb://fastDFS
-            predicates:
-              - Path=/api/fastDFS/**
-            filters:
-              - RewritePath=/api/(?<segment>.*), /$\{segment}
-
         - id: admin_route
           uri: lb://renren-fast
           predicates:

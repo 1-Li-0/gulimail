@@ -1,5 +1,6 @@
 package com.example.gulimall.product.service.impl;
 
+import com.example.common.utils.FastDFSUtil;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,6 +25,11 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public String[] uploadLogo(byte[] data, String name, long size) {
+        return FastDFSUtil.upload(data,name,size);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.common.utils;
 
 import org.csource.common.MyException;
+import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
 import org.springframework.core.io.ClassPathResource;
 
@@ -21,7 +22,7 @@ public class FastDFSUtil {
     }
 
     //文件上传，保存在linux系统的/storage/files路径中
-    public static String[] upload(String uploadUrl) {
+    public static String[] upload(byte[] data, String name, long size) {
         TrackerServer ts = null;
         StorageServer ss = null;
         String[] ret = null;
@@ -29,18 +30,21 @@ public class FastDFSUtil {
             TrackerClient tc = new TrackerClient();
             ts = tc.getTrackerServer();
             ss = tc.getStoreStorage(ts);
-            StorageClient sc = new StorageClient(ts,ss);
+            StorageClient sc = new StorageClient(ts, ss);
             /**
-             * 参数1 本地文件绝对路径
+             * 参数1 文件流
              * 参数2 文件后缀
              * 参数3 文件的属性文件，通常不上传
              * 返回值包含了组名和文件的远程路径名，建议存入数据库方便以后下载和查看
              * uploadUrl: "C:/Users/liyuan/Pictures/Saved Pictures/怒之铁拳4.jpg"
              */
-            String[] strings = uploadUrl.split("\\.");
-            if (strings != null && strings.length>0) {
-                ret = sc.upload_file(uploadUrl, strings[strings.length - 1], null);
-            }
+            String ext = name.substring((name.lastIndexOf("."))+1);
+            NameValuePair[] metaList = new NameValuePair[3];
+            metaList[0] = new NameValuePair("fileName", name);
+            metaList[1] = new NameValuePair("fileExt", ext);
+            metaList[2] = new NameValuePair("fileSize", String.valueOf(size));
+            ret = sc.upload_file(data, ext, metaList);
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (MyException e) {
@@ -48,8 +52,9 @@ public class FastDFSUtil {
         }
         return ret;
     }
+
     //文件下载
-    public static int download(String groupName,String remoteUrl,String fileName) {
+    public static int download(String groupName, String remoteUrl, String fileName) {
         TrackerServer ts = null;
         StorageServer ss = null;
         int ret = -1;
@@ -57,7 +62,7 @@ public class FastDFSUtil {
             TrackerClient tc = new TrackerClient();
             ts = tc.getTrackerServer();
             ss = tc.getStoreStorage(ts);
-            StorageClient sc = new StorageClient(ts,ss);
+            StorageClient sc = new StorageClient(ts, ss);
             /**
              * 参数1 组名
              * 参数2 文件的远程路径名
@@ -73,8 +78,9 @@ public class FastDFSUtil {
         }
         return ret;
     }
+
     //文件删除
-    public static int delete(String groupName,String remoteUrl) {
+    public static int delete(String groupName, String remoteUrl) {
         TrackerServer ts = null;
         StorageServer ss = null;
         int ret = -1;
