@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="20">
       <el-col :span="6">
-        <Category></Category>
+        <Category @tree-node-click="treeNodeClick"></Category>
       </el-col>
       <el-col :span="18">
         <div class="mod-config">
@@ -104,6 +104,7 @@ import AddOrUpdate from './attrgroup-add-or-update'
 export default {
   data() {
     return {
+      catId: 0,
       dataForm: {
         key: ''
       },
@@ -124,11 +125,18 @@ export default {
     this.getDataList()
   },
   methods: {
+    //点击节点时发送请求
+    treeNodeClick(data, node, component) {
+      if (node.level === 3) {
+        this.catId = data.catId;
+        this.getDataList();
+      }
+    },
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true
       this.$http({
-        url: this.$http.adornUrl('/product/attrgroup/list'),
+        url: this.$http.adornUrl(`/product/attrgroup/list/${this.catId}`),
         method: 'get',
         params: this.$http.adornParams({
           'page': this.pageIndex,

@@ -1,20 +1,17 @@
 package com.example.gulimall.product.service.impl;
 
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.common.utils.PageUtils;
 import com.example.common.utils.Query;
-
 import com.example.gulimall.product.dao.CategoryDao;
 import com.example.gulimall.product.entity.CategoryEntity;
 import com.example.gulimall.product.service.CategoryService;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service("categoryService")
@@ -55,6 +52,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          *  使用标识: 0表示已删除/不显示，1表示显示
          */
         baseMapper.deleteBatchIds(asList);
+    }
+
+    @Override
+    public Long[] getCatelogPath(Long catelogId) {
+        List<Long> path = new ArrayList<>();
+        List<Long> parentPath = this.findParentPath(catelogId, path);
+        //toArray()返回的是一个Object对象，需要换成Long[]
+        return parentPath.toArray(new Long[0]);
+    }
+
+    private List<Long> findParentPath(Long catelogId,List<Long> path){
+        CategoryEntity category = this.getById(catelogId);
+        if (category.getParentCid() != 0){
+            findParentPath(category.getParentCid(),path);
+        }
+        path.add(catelogId);
+        return path;
     }
 
     private List<CategoryEntity> getChildrens(CategoryEntity menu, List<CategoryEntity> categoryEntities) {

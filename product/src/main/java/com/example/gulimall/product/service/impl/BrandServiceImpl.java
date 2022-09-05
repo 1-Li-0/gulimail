@@ -1,6 +1,7 @@
 package com.example.gulimall.product.service.impl;
 
 import com.example.common.utils.FastDFSUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -19,9 +20,17 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        //完善关键字模糊匹配功能
+        String key = (String) params.get("key");
+        QueryWrapper<BrandEntity> wrapper = new QueryWrapper<>();
+        if (!StringUtils.isEmpty(key)){
+            wrapper.and((obj)->{
+                obj.eq("brand_id",key).or().like("name",key);
+            });
+        }
         IPage<BrandEntity> page = this.page(
                 new Query<BrandEntity>().getPage(params),
-                new QueryWrapper<BrandEntity>()
+                wrapper
         );
 
         return new PageUtils(page);
