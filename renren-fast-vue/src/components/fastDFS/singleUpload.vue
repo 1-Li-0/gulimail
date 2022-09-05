@@ -11,10 +11,11 @@
       :on-success="handleUploadSuccess"
       :on-preview="handlePreview">
       <el-button size="small" type="primary">点击上传</el-button>
+      <span>{{file.name}}</span>
       <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过10MB</div>
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
-      <img width="100%" :src="fileList[0].url" alt="">
+      <img width="100%" :src="file.url" alt="">
     </el-dialog>
   </div>
 </template>
@@ -52,14 +53,14 @@
     },
     data() {
       return {
-
+        file: {url: "",name: ""},
         dialogVisible: false
       };
     },
     methods: {
       //验证文件
       beforeUpload(picture){
-        console.log(picture);
+
       },
       emitInput(val) {
         this.$emit('input', val)
@@ -72,10 +73,12 @@
         this.dialogVisible = true;
       },
       handleUploadSuccess(res, file) {
+        this.file.name=file.name;
         console.log("上传成功...")
         this.showFileList = true;
         this.fileList.pop();
-        this.emitInput(this.fileList[0].url);
+        this.file.url = "http://192.168.12.128:8888/"+res.path;
+        this.emitInput(this.file.url);
       }
     }
   }

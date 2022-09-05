@@ -2,11 +2,6 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: test_gateway
-          uri: https://www.baidu.com
-          predicates:
-            - Query=url,baidu
-
         - id: product_route
           uri: lb://product
           predicates:
