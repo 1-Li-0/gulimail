@@ -74,14 +74,14 @@ public class BrandController {
     }
 
     /**
-     * 修改
+     * 同时更新品牌表和关联关系表
      */
     @RequestMapping("/update")
-    //@RequiresPermissions("product:brand:update")
     public R update(@Validated(value = {UpdateGroup.class}) @RequestBody BrandEntity brand) {
-        brandService.updateById(brand);
+        brandService.updateDetail(brand);
         return R.ok();
     }
+
     /**
      * 修改品牌的状态
      */
@@ -91,6 +91,7 @@ public class BrandController {
         brandService.updateById(brand);
         return R.ok();
     }
+
     /**
      * 删除
      */

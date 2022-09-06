@@ -17,5 +17,7 @@ public interface BrandService extends IService<BrandEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
     public String[] uploadLogo(byte[] data, String name, long size);
+
+    void updateDetail(BrandEntity brand);
 }
 
