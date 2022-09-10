@@ -22,7 +22,7 @@
 <script>
 
   export default {
-    name: 'singleUpload',
+    name: 'multiUpload',
     props: {
       value: String
     },

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import SingleUpload from "@/components/fastDFS/singleUpload";
+import SingleUpload from "@/components/upload/singleUpload";
 export default {
   components: { SingleUpload },
   data() {
