@@ -17,9 +17,9 @@ import com.example.gulimall.product.entity.AttrGroupEntity;
 import com.example.gulimall.product.entity.CategoryEntity;
 import com.example.gulimall.product.service.AttrService;
 import com.example.gulimall.product.service.CategoryService;
-import com.example.gulimall.product.vo.AttrGroupRelationVO;
-import com.example.gulimall.product.vo.AttrRespVO;
-import com.example.gulimall.product.vo.AttrVO;
+import com.example.gulimall.product.vo.AttrGroupRelationVo;
+import com.example.gulimall.product.vo.AttrRespVo;
+import com.example.gulimall.product.vo.AttrVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
-    public void saveAttr(AttrVO attr) {
+    public void saveAttr(AttrVo attr) {
         AttrEntity attrEntity = new AttrEntity();
         //将AttrVO的属性封装到AttrEntity对象
         BeanUtils.copyProperties(attr, attrEntity);
@@ -94,8 +94,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         //取出包装在结果中的AttrEntity集合
         List<AttrEntity> records = page.getRecords();
         //查询分类和分组信息，用AttrRespVO对象收集数据
-        List<AttrRespVO> respVOs = records.stream().map((attrEntity) -> {
-            AttrRespVO attrRespVO = new AttrRespVO();
+        List<AttrRespVo> respVOs = records.stream().map((attrEntity) -> {
+            AttrRespVo attrRespVO = new AttrRespVo();
             //复制属性
             BeanUtils.copyProperties(attrEntity, attrRespVO);
             //查询关联信息
@@ -117,8 +117,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
-    public AttrRespVO getAttrInfo(Long attrId) {
-        AttrRespVO respVO = new AttrRespVO();
+    public AttrRespVo getAttrInfo(Long attrId) {
+        AttrRespVo respVO = new AttrRespVo();
         AttrEntity attrEntity = attrDao.selectById(attrId);
         BeanUtils.copyProperties(attrEntity, respVO);
         //设置分类信息
@@ -145,7 +145,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Override
     @Transactional
-    public void updateAttr(AttrVO attr) {
+    public void updateAttr(AttrVo attr) {
         //修改attr对象
         AttrEntity attrEntity = new AttrEntity();
         BeanUtils.copyProperties(attr, attrEntity);
@@ -181,7 +181,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
-    public void deleteRelation(AttrGroupRelationVO[] vos) {
+    public void deleteRelation(AttrGroupRelationVo[] vos) {
         List<AttrAttrgroupRelationEntity> entities = Arrays.asList(vos).stream().map((vo) -> {
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             BeanUtils.copyProperties(vo, relationEntity);

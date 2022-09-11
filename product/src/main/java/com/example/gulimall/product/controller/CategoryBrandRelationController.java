@@ -1,19 +1,17 @@
 package com.example.gulimall.product.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-//import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.common.utils.R;
+import com.example.gulimall.product.entity.BrandEntity;
+import com.example.gulimall.product.entity.CategoryBrandRelationEntity;
+import com.example.gulimall.product.service.CategoryBrandRelationService;
+import com.example.gulimall.product.vo.BrandVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.gulimall.product.entity.CategoryBrandRelationEntity;
-import com.example.gulimall.product.service.CategoryBrandRelationService;
-import com.example.common.utils.PageUtils;
-import com.example.common.utils.R;
-
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -33,14 +31,27 @@ public class CategoryBrandRelationController {
      * 获取当前品牌关联的所有分类列表
      */
     @GetMapping("/catelog/list")
-    public R list(@RequestParam("brandId") Long brandId){
+    public R catList(@RequestParam("brandId") Long brandId){
         List<CategoryBrandRelationEntity> data = categoryBrandRelationService.list(
                 new QueryWrapper<CategoryBrandRelationEntity>().eq("brand_id",brandId)
         );
 
         return R.ok().put("data", data);
     }
-
+    /**
+     * 获取当前品牌关联的所有分类列表
+     */
+    @GetMapping("/brands/list")
+    public R brandList(@RequestParam("catId") Long catId){
+        List<BrandEntity> list = categoryBrandRelationService.getBrandsByCatId(catId);
+        List<BrandVo> data = list.stream().map((entity) -> {
+            BrandVo vo = new BrandVo();
+            vo.setBrandId(entity.getBrandId());
+            vo.setBrandName(entity.getName());
+            return vo;
+        }).collect(Collectors.toList());
+        return R.ok().put("data", data);
+    }
 
     /**
      * 信息
