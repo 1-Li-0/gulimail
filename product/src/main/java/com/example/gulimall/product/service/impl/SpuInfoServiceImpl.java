@@ -1,11 +1,12 @@
 package com.example.gulimall.product.service.impl;
 
+import com.example.common.to.SkuReductionTo;
+import com.example.common.to.SpuBoundsTo;
+import com.example.common.utils.R;
 import com.example.gulimall.product.entity.*;
+import com.example.gulimall.product.feign.CouponFeignService;
 import com.example.gulimall.product.service.*;
-import com.example.gulimall.product.vo.Attr;
-import com.example.gulimall.product.vo.BaseAttrs;
-import com.example.gulimall.product.vo.Skus;
-import com.example.gulimall.product.vo.SpuSaveVo;
+import com.example.gulimall.product.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,13 +31,19 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     private SpuInfoDescService spuInfoDescService;
     @Autowired
-    private SpuImagesService imagesService;
+    private SpuImagesService spuImagesService;
     @Autowired
     private AttrService attrService;
     @Autowired
     private ProductAttrValueService attrValueService;
     @Autowired
     private SkuInfoService skuInfoService;
+    @Autowired
+    private SkuImagesService skuImagesService;
+    @Autowired
+    private SkuSaleAttrValueService skuSaleAttrValueService;
+    @Autowired
+    private CouponFeignService couponFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -68,7 +75,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         //保存spu图片路径pms_spu_images
         List<String> images = vo.getImages();
-        imagesService.saveImages(infoEntity.getId(), images);
+        spuImagesService.saveImages(infoEntity.getId(), images);
 
         //保存spu基本属性的值pms_product_attr_value
         List<BaseAttrs> baseAttrs = vo.getBaseAttrs();
@@ -84,20 +91,73 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }).collect(Collectors.toList());
         attrValueService.saveProductAttrValue(collect);
 
-        //保存spu积分sms_spu_bounds
-
         //提取sku所有信息，每个sku都是一个具体的商品，有各自的销售属性
         List<Skus> skus = vo.getSkus();
         if (skus != null && skus.size() > 0) {
             skus.forEach(sku -> {
                 //保存sku基本信息pms_sku_info
                 SkuInfoEntity skuInfoEntity = new SkuInfoEntity();
-                BeanUtils.copyProperties(sku,skuInfoEntity);
-                skuInfoEntity.setSpuId(infoEntity.getId());
-                skuInfoEntity.setBrandId();
+                BeanUtils.copyProperties(sku, skuInfoEntity);
+                Long spuId = infoEntity.getId();
+                skuInfoEntity.setSpuId(spuId);
+                skuInfoEntity.setBrandId(infoEntity.getBrandId());
+                skuInfoEntity.setCatalogId(infoEntity.getCatalogId());
+                skuInfoEntity.setSaleCount(0L);
+                //保存sku_default_img属性值
+                String defaultImg = "";
+                for (Images image : sku.getImages()) {
+                    if (image.getDefaultImg() == 1) {
+                        defaultImg = image.getImgUrl();
+                    }
+                }
+                skuInfoEntity.setSkuDefaultImg(defaultImg);
+
+                //保存skuInfoEntity
+                skuInfoService.saveSkuInfo(skuInfoEntity);
+                SkuInfoEntity skuInfo = skuInfoService.getOne(new QueryWrapper<SkuInfoEntity>().eq("spu_id", spuId).eq("sku_name", skuInfoEntity.getSkuName()).eq("brand_id", skuInfoEntity.getBrandId()).eq("catalog_id", skuInfoEntity.getCatalogId()));
+                Long skuId = skuInfo.getSkuId();
+
                 //保存sku图片信息pms_sku_images
+                List<SkuImagesEntity> skuImagesEntities = sku.getImages().stream().map(img -> {
+                    SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+                    skuImagesEntity.setSkuId(skuId);
+                    skuImagesEntity.setImgUrl(img.getImgUrl());
+                    skuImagesEntity.setDefaultImg(img.getDefaultImg());
+                    return skuImagesEntity;
+                }).collect(Collectors.toList());
+                skuImagesService.saveBatch(skuImagesEntities);
+
                 //保存sku销售信息pms_sku_sale_attr_value
-                //保存sku优惠sms_sku_ladder/满减信息sms_sku_full_reduction
+                List<Attr> attr = sku.getAttr();
+                List<SkuSaleAttrValueEntity> saleAttrValueEntities = attr.stream().map(a -> {
+                    SkuSaleAttrValueEntity attrValueEntity = new SkuSaleAttrValueEntity();
+                    BeanUtils.copyProperties(a, attrValueEntity);
+                    attrValueEntity.setSkuId(skuId);
+                    return attrValueEntity;
+                }).collect(Collectors.toList());
+                skuSaleAttrValueService.saveBatch(saleAttrValueEntities);
+
+                /**
+                 * 使用其他服务，需要调用远程接口
+                 */
+                //保存spu积分sms_spu_bounds
+                Bounds bounds = vo.getBounds();
+                SpuBoundsTo spuBoundsTo = new SpuBoundsTo();
+                spuBoundsTo.setSpuId(spuId);
+                BeanUtils.copyProperties(bounds, spuBoundsTo);
+                R r1 = couponFeignService.saveSpuBounds(spuBoundsTo);
+                if (r1.getCode() != 0) {
+                    log.error("远程保存spu积分信息失败");
+                }
+
+                //保存sku优惠sms_sku_ladder/满减信息sms_sku_full_reduction/会员价格sms_member_price
+                SkuReductionTo skuReductionTo = new SkuReductionTo();
+                skuReductionTo.setSkuId(skuId);
+                BeanUtils.copyProperties(sku, skuReductionTo);
+                R r2 = couponFeignService.saveSkuReduction(skuReductionTo);
+                if (r2.getCode() != 0) {
+                    log.error("远程保存sku优惠信息失败");
+                }
             });
         }
     }

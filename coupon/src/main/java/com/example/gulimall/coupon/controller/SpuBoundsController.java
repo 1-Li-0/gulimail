@@ -5,11 +5,7 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.gulimall.coupon.entity.SpuBoundsEntity;
 import com.example.gulimall.coupon.service.SpuBoundsService;
@@ -31,6 +27,7 @@ public class SpuBoundsController {
     @Autowired
     private SpuBoundsService spuBoundsService;
 
+    //product需要用到的远程接口
     /**
      * 列表
      */
@@ -54,11 +51,11 @@ public class SpuBoundsController {
         return R.ok().put("spuBounds", spuBounds);
     }
 
+    //product需要用到的远程接口
     /**
      * 保存
      */
-    @RequestMapping("/save")
-    //@RequiresPermissions("coupon:spubounds:save")
+    @PostMapping("/save")
     public R save(@RequestBody SpuBoundsEntity spuBounds){
 		spuBoundsService.save(spuBounds);
 
