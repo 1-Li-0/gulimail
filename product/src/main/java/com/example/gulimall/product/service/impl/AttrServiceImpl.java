@@ -11,10 +11,7 @@ import com.example.gulimall.product.dao.AttrAttrgroupRelationDao;
 import com.example.gulimall.product.dao.AttrDao;
 import com.example.gulimall.product.dao.AttrGroupDao;
 import com.example.gulimall.product.dao.CategoryDao;
-import com.example.gulimall.product.entity.AttrAttrgroupRelationEntity;
-import com.example.gulimall.product.entity.AttrEntity;
-import com.example.gulimall.product.entity.AttrGroupEntity;
-import com.example.gulimall.product.entity.CategoryEntity;
+import com.example.gulimall.product.entity.*;
 import com.example.gulimall.product.service.AttrService;
 import com.example.gulimall.product.service.CategoryService;
 import com.example.gulimall.product.vo.AttrGroupRelationVo;
@@ -221,4 +218,5 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         );
         return new PageUtils(page);
     }
+
 }

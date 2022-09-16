@@ -1,17 +1,16 @@
 package com.example.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.example.gulimall.product.entity.ProductAttrValueEntity;
+import com.example.gulimall.product.service.ProductAttrValueService;
 import com.example.gulimall.product.vo.AttrRespVo;
 import com.example.gulimall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.gulimall.product.service.AttrService;
 import com.example.common.utils.PageUtils;
@@ -30,6 +29,23 @@ import com.example.common.utils.R;
 public class AttrController {
     @Autowired
     private AttrService attrService;
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+    //修改规格参数，回显数据
+    @RequestMapping("/base/listforspu/{spuId}")
+    public R queryAttrListForSpu(@PathVariable("spuId") Long spuId) {
+        List<ProductAttrValueEntity> entities = productAttrValueService.queryAttrListForSpu(spuId);
+        return R.ok().put("data", entities);
+    }
+
+    //保存规格参数的修改
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> entities) {
+        productAttrValueService.updateSpuAttr(spuId,entities);
+        return R.ok();
+    }
 
     /**
      * 获取属性列表，0代表销售属性，1代表基本属性
@@ -78,7 +94,6 @@ public class AttrController {
      * 修改
      */
     @RequestMapping("/update")
-    //@RequiresPermissions("product:attr:update")
     public R update(@RequestBody AttrVo attr) {
         attrService.updateAttr(attr);
 
