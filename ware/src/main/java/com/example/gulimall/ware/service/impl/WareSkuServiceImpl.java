@@ -2,11 +2,13 @@ package com.example.gulimall.ware.service.impl;
 
 import com.example.common.utils.R;
 import com.example.gulimall.ware.feign.ProductFeignService;
+import com.example.gulimall.ware.vo.SkuHasStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -57,8 +59,8 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             //此处失败，整个事务无需回滚
             try {
                 R info = productFeignService.info(skuId);
-                if (info.getCode() == 0 ){
-                    Map<String,Object> skuInfo = (Map<String, Object>) info.get("skuInfo");
+                if (info.getCode() == 0) {
+                    Map<String, Object> skuInfo = (Map<String, Object>) info.get("skuInfo");
                     wareSkuEntity.setSkuName((String) skuInfo.get("skuName"));
                 }
             } catch (Exception e) {
@@ -69,6 +71,20 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         } else {
             this.baseMapper.addStock(skuId, wareId, stock);
         }
+    }
+
+    @Override
+    public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds) {
+        List<SkuHasStockVo> collect = skuIds.stream()
+                .map(skuId -> {
+                    SkuHasStockVo vo = new SkuHasStockVo();
+                    vo.setSkuId(skuId);
+                    Long count = baseMapper.getSkuStock(skuId);
+                    vo.setHasStock(count != null && count > 0);
+                    return vo;
+                })
+                .collect(Collectors.toList());
+        return collect;
     }
 
 }

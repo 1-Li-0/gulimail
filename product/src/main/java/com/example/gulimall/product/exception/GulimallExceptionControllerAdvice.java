@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j //此注解用来打印日志log.info()
-@RestControllerAdvice(basePackages = "com.example.gulimall.product.controller")
+@RestControllerAdvice(basePackages = "com.example.gulimall.product.app")
 public class GulimallExceptionControllerAdvice {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public R handleValidException(MethodArgumentNotValidException e) {
@@ -27,9 +27,9 @@ public class GulimallExceptionControllerAdvice {
     }
 
     //没有精准处理方法的异常全部在这里处理
-    @ExceptionHandler(value = Throwable.class)
-    public R handleException(Throwable throwable) {
-        log.error("异常类型：{}", throwable.getClass());
-        return R.error(BizCodeEnum.UNKNOW_EXCEPTION.getCode(),BizCodeEnum.UNKNOW_EXCEPTION.getMsg());
-    }
+//    @ExceptionHandler(value = Throwable.class)
+//    public R handleException(Throwable throwable) {
+//        log.error("异常类型：{}", throwable.getClass());
+//        return R.error(BizCodeEnum.UNKNOW_EXCEPTION.getCode(),BizCodeEnum.UNKNOW_EXCEPTION.getMsg());
+//    }
 }

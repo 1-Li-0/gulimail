@@ -39,16 +39,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> categoryEntities = baseMapper.selectList(null);
 
         //2.组装成父子树形结构
-        List<CategoryEntity> level1Menus = categoryEntities.stream().filter(categoryEntity -> categoryEntity.getParentCid() ==0 ).map(menu -> {
+        List<CategoryEntity> level1Menus = categoryEntities.stream().filter(categoryEntity -> categoryEntity.getParentCid() == 0).map(menu -> {
             menu.setChildren(getChildrens(menu, categoryEntities));
             return menu;
-        }).sorted((menu1,menu2) -> (menu1.getSort()==null?0:menu1.getSort())-(menu2.getSort()==null?0:menu2.getSort())).collect(Collectors.toList());
+        }).sorted((menu1, menu2) -> (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort())).collect(Collectors.toList());
 
         return level1Menus;
     }
 
     /**
-     *  baseMapper 容器中对应的的mapper对象
+     * baseMapper 容器中对应的的mapper对象
      */
     @Override
     public void removeMenuByIds(List<Long> asList) {
@@ -72,13 +72,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Override
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
-        categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
     }
 
-    private List<Long> findParentPath(Long catelogId,List<Long> path){
+    @Override
+    public List<CategoryEntity> getLevel1Catagorys() {
+        List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        return categoryEntities;
+    }
+
+    private List<Long> findParentPath(Long catelogId, List<Long> path) {
         CategoryEntity category = this.getById(catelogId);
-        if (category.getParentCid() != 0){
-            findParentPath(category.getParentCid(),path);
+        if (category.getParentCid() != 0) {
+            findParentPath(category.getParentCid(), path);
         }
         path.add(catelogId);
         return path;
@@ -86,10 +92,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     private List<CategoryEntity> getChildrens(CategoryEntity menu, List<CategoryEntity> categoryEntities) {
         //Long类型数据的比较使用.equals()，否则前端页面可能有DOM不显示
-        List<CategoryEntity> children = categoryEntities.stream().filter(categoryEntity -> categoryEntity.getParentCid() .equals(menu.getCatId()) ).map( entity -> {
+        List<CategoryEntity> children = categoryEntities.stream().filter(categoryEntity -> categoryEntity.getParentCid().equals(menu.getCatId())).map(entity -> {
             entity.setChildren(getChildrens(entity, categoryEntities));
             return entity;
-        }).sorted((menu1,menu2) -> (menu1.getSort()==null?0:menu1.getSort())-(menu2.getSort()==null?0:menu2.getSort())).collect(Collectors.toList());
+        }).sorted((menu1, menu2) -> (menu1.getSort() == null ? 0 : menu1.getSort()) - (menu2.getSort() == null ? 0 : menu2.getSort())).collect(Collectors.toList());
         return children;
     }
 
