@@ -19,6 +19,16 @@
         <elasticsearch.version>7.4.2</elasticsearch.version>
     </properties>
     <dependencies>
+        <!--旧版本DIRECT_MEMORY_LIMIT设置会导致堆外内存溢出-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <!--热部署插件-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
         <!--thymeleaf模板引擎-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -30,3 +30,9 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /renren-fast/$\{segment}
 
+        #nginx代理的首页
+        - id: gulimall_gateway_route
+          uri: lb://product
+          predicates:
+            - Host=**.gulimall.com
+
