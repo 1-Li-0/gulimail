@@ -20,7 +20,7 @@ public class IndexController {
     //商城首页查询所有一级分类的请求
     @GetMapping({"/", "/index.html"})
     public String indexPage(Model model) {
-        List<CategoryEntity> categoryEntities = categoryService.getLevel1Catagorys();
+        List<CategoryEntity> categoryEntities = categoryService.getLevel1Categorys();
         model.addAttribute("categorys", categoryEntities);
         //视图解析器classpath:templates/{返回值}.html
         return "index";

@@ -18,13 +18,13 @@ spring:
     host: 192.168.12.128
     port: 6379
 
+  thymeleaf:
+    cache: false
+
 #开启feign对sentinel的支持
 #feign:
 #  sentinel:
 #    enabled: true
-#
-#  thymeleaf:
-#    cache: false
 #
 #  session:
 #    store-type: redis

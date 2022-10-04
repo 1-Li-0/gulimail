@@ -19,7 +19,18 @@
         <elasticsearch.version>7.4.2</elasticsearch.version>
     </properties>
     <dependencies>
-        <!--旧版本DIRECT_MEMORY_LIMIT设置会导致堆外内存溢出-->
+        <!--缓存的启动依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <!--此版本DIRECT_MEMORY_LIMIT设置会导致堆外内存溢出-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
