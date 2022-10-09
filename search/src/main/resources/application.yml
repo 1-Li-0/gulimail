@@ -15,7 +15,7 @@ spring:
 #        dashboard: localhost:8080
 
   redis:
-    host: 192.168.12.128
+    host: 192.168.203.128
     port: 6379
 
   thymeleaf:

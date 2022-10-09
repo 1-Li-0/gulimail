@@ -46,7 +46,7 @@
 		<!--wagon plugin 配置-->
 		<service-path>/work/renren</service-path>
 		<pack-name>${project.artifactId}-${project.version}.jar</pack-name>
-		<remote-addr>192.168.12.128:22</remote-addr>
+		<remote-addr>192.168.203.128:22</remote-addr>
 		<remote-username>root</remote-username>
 		<remote-passwd>123456</remote-passwd>
 	</properties>

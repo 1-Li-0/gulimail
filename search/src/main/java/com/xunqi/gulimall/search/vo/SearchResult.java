@@ -15,6 +15,16 @@ public class SearchResult {
     private Integer pageNum; //当前页码
     private Long total; //总记录
     private Integer totalPages; //总页数
+    private List<Integer> pageNavs; //页码导航
+
+    private List<NavVo> navVos; //面包屑导航
+
+    @Data
+    public static class NavVo{
+        private Long navId;
+        private String navName;
+        private String navValue;
+    }
 
     @Data
     public static class BrandVo {
@@ -31,6 +41,6 @@ public class SearchResult {
     public static class AttrVo {
         private Long attrId;
         private String attrName;
-        private String attrValue;
+        private List<String> attrValue;
     }
 }

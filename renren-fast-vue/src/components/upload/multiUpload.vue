@@ -76,7 +76,7 @@ export default {
       console.log("上传成功...")
       this.showFileList = true;
       this.fileList.pop();
-      this.file.url = "http://192.168.12.128:8888/"+res.path;
+      this.file.url = "http://192.168.203.128:8888/"+res.path;
       this.emitInput(this.file.url);
     }
   }
