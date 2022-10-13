@@ -765,6 +765,11 @@
                 <a href="/static/search/#">游戏手机</a>
             </div>
         </div>
+        <!--遍历面包屑导航-->
+        <div class="JD_ipone_one c">
+            <a th:each="nav:${result.navVos}" th:href="${nav.link}"><span th:text="${nav.navName}"></span>:<span
+                    th:text="${nav.navValue}"></span>X</a>
+        </div>
         <i><img src="/static/search/image/right-@1x.png" alt=""></i>
     </div>
 </div>
@@ -778,9 +783,9 @@
                 <h3><b>手机</b><em>商品筛选</em></h3>
                 <div class="st-ext">共&nbsp;<span>10135</span>个商品</div>
             </div>
-            <div class="JD_nav_logo">
+            <div class="JD_nav_logo" th:with="brandid=${param.brandId},catalogid=${param.catalog3Id}">
                 <!--品牌-->
-                <div class="JD_nav_wrap">
+                <div th:if="${#strings.isEmpty(brandid)}" class="JD_nav_wrap">
                     <div class="sl_key">
                         <span><b>品牌：</b></span>
                     </div>
@@ -788,7 +793,7 @@
                         <div class="sl_value_logo">
                             <ul>
                                 <li th:each="brand:${result.brands}">
-                                    <a th:href="|javascript:searchProducts('brandId',${brand.brandId})|">
+                                    <a th:href="|javascript:searchProducts('brandId',${brand.brandId},false)|">
                                         <img th:src="'/static/search/img/598033b4nd6055897.jpg'" alt="">
                                         <div th:text="${brand.brandName}">
                                             华为(HUAWEI)
@@ -811,15 +816,15 @@
                         </a>
                     </div>
                 </div>
-                <!--分类-->
-                <div class="JD_pre">
+                <!--分类，未做导航的取消-->
+                <div class="JD_pre" th:if="${#strings.isEmpty(catalogid)}">
                     <div class="sl_key">
                         <span><b>分类：</b></span>
                     </div>
                     <div class="sl_value">
                         <ul>
                             <li th:each="catalog:${result.catalogs}">
-                                <a th:href="|javascript:searchProducts('catalog3Id',${catalog.catalogId})|"
+                                <a th:href="|javascript:searchProducts('catalog3Id',${catalog.catalogId},false)|"
                                    th:text="${catalog.catalogName}"></a>
                             </li>
                         </ul>
@@ -838,14 +843,15 @@
                     </div>
                 </div>
                 <!--所有属性遍历-->
-                <div class="JD_pre" th:each="attr:${result.attrs}">
+                <div class="JD_pre" th:each="attr:${result.attrs}"
+                     th:if="${!#lists.contains(result.attrIds,attr.attrId)}">
                     <div class="sl_key">
                         <span th:text="${attr.attrName}">屏幕尺寸：</span>
                     </div>
                     <div class="sl_value">
                         <ul>
                             <li th:each="value:${attr.attrValue}">
-                                <a th:href="|javascript:searchProducts('attrs','${attr.attrId}_${value}')|"
+                                <a th:href="|javascript:searchProducts('attrs','${attr.attrId}_${value}',true)|"
                                    th:text="${value}">5.56英寸及以上</a>
                             </li>
                         </ul>
@@ -1159,7 +1165,8 @@
                                 </li>
                                 <li>
                                     <a th:with="check=${param.hasStock}">
-                                        <input type="checkbox" id="showHasStock" th:checked="${#strings.equals(check,'1')}">
+                                        <input type="checkbox" id="showHasStock"
+                                               th:checked="${#strings.equals(check,'1')}">
                                         仅显示有货
                                     </a>
                                 </li>
@@ -1181,7 +1188,7 @@
                                 <a href="/static/search/#">关注</a>
                             </div>
                             <p class="da">
-                                <a href="/static/search/#">
+                                <a th:href="|http://item.gulimall.com/${product.skuId}.html|">
                                     <img th:src="${product.getSkuImg()}" class="dim">
                                 </a>
                             </p>
@@ -1986,8 +1993,8 @@
         $(this).css("color", "#727272")
     })
 
-    function searchProducts(name, value) {
-        location.href = replaceAndAddParamVal(location.href,name,value);
+    function searchProducts(name, value, add) {
+        location.href = replaceAndAddParamVal(location.href, name, value, add);
     }
 
     function searchByKeyword() {
@@ -1996,24 +2003,29 @@
 
     $(".page_a").click(function () {
         var pn = $(this).attr("pn");
-        location.href = replaceAndAddParamVal(location.href, "pageNum", pn);
+        location.href = replaceAndAddParamVal(location.href, "pageNum", pn, false);
         //禁用默认行为，否则会自动跳转
         return false;
     })
 
     $(".page_submit").click(function () {
         var pn = $("#page_submit_number").val();
-        location.href = replaceAndAddParamVal(location.href, "pageNum", pn);
+        location.href = replaceAndAddParamVal(location.href, "pageNum", pn, false);
         //禁用默认行为，否则会自动跳转
         return false;
     })
 
-    function replaceAndAddParamVal(url, paramName, replaceVal) {
+    function replaceAndAddParamVal(url, paramName, replaceVal, forceAdd) {
         var oUrl = url.toString();
         if (oUrl.includes(paramName)) {
-            //替换
-            var reg = eval('/(' + paramName + '=)([^&]*)/gi');
-            return oUrl.replace(reg, paramName + "=" + replaceVal);
+            if (forceAdd) {
+                //有相同参数名，强行增加
+                return oUrl + (oUrl.includes("?") ? "&" : "?") + paramName + "=" + replaceVal;
+            } else {
+                //替换
+                var reg = eval('/(' + paramName + '=)([^&]*)/gi');
+                return oUrl.replace(reg, paramName + "=" + replaceVal);
+            }
         } else {
             //增加
             return oUrl + (oUrl.includes("?") ? "&" : "?") + paramName + "=" + replaceVal;
@@ -2038,7 +2050,7 @@
         //拼接url请求
         var sort = $(this).attr("sort");
         sort = $(this).hasClass("desc") ? sort + "_desc" : sort + "_asc";
-        location.href = replaceAndAddParamVal(location.href, "sort", sort);
+        location.href = replaceAndAddParamVal(location.href, "sort", sort, false);
         return false;
     })
 
@@ -2067,16 +2079,16 @@
     $("#skuPriceSearchBtn").click(function () {
         var from = $("#skuPriceFrom").val();
         var to = $("#skuPriceTo").val();
-        location.href = replaceAndAddParamVal(location.href, "skuPrice", from + "_" + to);
+        location.href = replaceAndAddParamVal(location.href, "skuPrice", from + "_" + to, false);
     })
 
     $("#showHasStock").change(function () {
         if ($(this).prop("checked")) {
-            location.href = replaceAndAddParamVal(location.href, "hasStock", 1);
-        }else {
+            location.href = replaceAndAddParamVal(location.href, "hasStock", 1, false);
+        } else {
             //不显示有货，则将url中的hasStock=1字符串变为空
             var re = eval("/[?|&](hasStock=)([^&]*)/gi");
-            location.href = (location.href.toString()).replace(re,"");
+            location.href = (location.href.toString()).replace(re, "");
         }
     })
 </script>

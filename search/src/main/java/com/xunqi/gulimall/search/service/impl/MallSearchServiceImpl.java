@@ -31,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -227,32 +229,101 @@ public class MallSearchServiceImpl implements MallSearchService {
         if (attr_id_agg.getBuckets() != null && attr_id_agg.getBuckets().size() > 0) {
             for (Terms.Bucket bucket : attr_id_agg.getBuckets()) {
                 SearchResult.AttrVo attrVo = new SearchResult.AttrVo();
-                attrVo.setAttrId(bucket.getKeyAsNumber().longValue());
+                long attrId = bucket.getKeyAsNumber().longValue();
+                attrVo.setAttrId(attrId);
+
                 ParsedStringTerms attr_name_agg = bucket.getAggregations().get("attr_name_agg");
                 attrVo.setAttrName(attr_name_agg.getBuckets().get(0).getKeyAsString());
+
                 ParsedStringTerms attr_value_agg = bucket.getAggregations().get("attr_value_agg");
                 List<String> attrValues = attr_value_agg.getBuckets().stream().map(v -> v.getKeyAsString()).collect(Collectors.toList());
                 attrVo.setAttrValue(attrValues);
+
                 attrVos.add(attrVo);
             }
         }
         result.setAttrs(attrVos);
 
-        //封装面包屑导航结果
-        if (param.getAttrs() != null) {
-            List<SearchResult.NavVo> collect = param.getAttrs().stream()
-                    .map(attr -> {
-                        SearchResult.NavVo navVo = new SearchResult.NavVo();
-                        //参数格式attrs=1_5.2寸:6寸
-                        String[] s = attr.split("_");
-                        navVo.setNavValue(s[1]);
-                        //通过属性id查询结果集中的属性名
-                        SearchResult.AttrVo attrVo = result.getAttrs().stream().filter(vo -> Long.parseLong(s[0]) == vo.getAttrId()).findFirst().get();
-                        navVo.setNavName(attrVo.getAttrName());
-                        return navVo;
-                    }).collect(Collectors.toList());
-            result.setNavVos(collect);
+        //封装面包屑导航的属性
+        List<SearchResult.NavVo> collect = result.getNavVos();
+        if (param.getAttrs() != null && param.getAttrs().size() > 0) {
+            param.getAttrs().forEach(attr -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                //参数格式attrs=1_5.2寸:6寸
+                String[] s = attr.split("_");
+                long attrId = Long.parseLong(s[0]);
+                result.getAttrIds().add(attrId);
+                navVo.setNavId(attrId);
+                navVo.setNavValue(s[1]);
+                //通过属性id查询结果集中的属性名
+                if (result.getAttrs() != null && result.getAttrs().size() > 0) {
+                    SearchResult.AttrVo attrVo = result.getAttrs().stream().filter(vo -> Long.parseLong(s[0]) == vo.getAttrId()).findFirst().get();
+                    navVo.setNavName(attrVo.getAttrName());
+                } else {
+                    navVo.setNavName(s[0]);
+                }
+                String replace = replaceQueryString(param, attr, "attrs");
+                navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+                collect.add(navVo);
+            });
+
         }
+        //封装面包屑导航的品牌，分类
+        if (param.getBrandId() != null && param.getBrandId().size() > 0) {
+            param.getBrandId().forEach(brandId -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                navVo.setNavId(brandId);
+                navVo.setNavName("品牌");
+                if (result.getBrands() != null && result.getBrands().size() > 0) {
+                    List<SearchResult.BrandVo> brandVoList = result.getBrands().stream().filter(brandVo1 -> brandVo1.getBrandId() == brandId).collect(Collectors.toList());
+                    StringBuffer buffer = new StringBuffer();
+                    String replace = "";
+                    for (SearchResult.BrandVo brandVo : brandVoList) {
+                        buffer.append(brandVo.getBrandName() + ";");
+                        replace = replaceQueryString(param, brandVo.getBrandId().toString(), "brandId");
+                    }
+                    navVo.setNavValue(buffer.toString());
+                    navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+                }
+                collect.add(navVo);
+            });
+        }
+        if (param.getCatalog3Id() != null) {
+            SearchResult.NavVo navVo = new SearchResult.NavVo();
+            navVo.setNavId(param.getCatalog3Id());
+            navVo.setNavName("分类");
+            if (result.getCatalogs() != null && result.getCatalogs().size() > 0) {
+                List<SearchResult.CatalogVo> catalogVoList = result.getCatalogs().stream().filter(catalogVo -> catalogVo.getCatalogId() == param.getCatalog3Id()).collect(Collectors.toList());
+                StringBuffer buffer = new StringBuffer();
+                for (SearchResult.CatalogVo catalogVo : catalogVoList) {
+                    buffer.append(catalogVo.getCatalogName() + ";");
+                }
+                navVo.setNavValue(buffer.toString());
+            }
+            collect.add(navVo);
+        }
+        result.setNavVos(collect);
         return result;
+    }
+
+    /**
+     * @param param 查询参数
+     * @param value 需要替换的目标字符串
+     * @param key   目标字符串的参数字段名
+     * @return
+     */
+    private String replaceQueryString(SearchParam param, String value, String key) {
+        //取消面包屑对应属性的导航后，需要重新拼接链接地址
+        String encode = null;
+        try {
+            //浏览器编码和后端编码不一样
+            encode = URLEncoder.encode(value, "UTF-8");
+            //编码转换时空格会变成+，需要替换
+            encode = encode.replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String replace = param.get_queryString().replace("&" + key + "=" + encode, "");
+        return replace;
     }
 }

@@ -14,4 +14,6 @@ public class SearchParam {
     private List<Long> brandId; //品牌可以多选
     private List<String> attrs; //属性规格可以多选：attrs=2_5寸:6寸
     private Integer pageNum; //页码
+
+    private String _queryString; //请求的查询参数: URL地址中？后面的全部字符串
 }
