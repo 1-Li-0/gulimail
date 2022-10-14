@@ -1538,29 +1538,15 @@
         $("a[class='sku_attr_value checked']").each(function () {
             skus.push($(this).attr("skus").split(","));
         })
-        //计算数组中重复次数最多的元素
-        var obj = {}; //创建对象（hashMap），元素为key，出现次数为value
-        for (let i in skus) {
-            var key = skus[i].toString();
-            if (!obj[key]) {
-                obj[key]=1;
-            } else {
-                obj[key]++;
-            }
-        }
-        //比较次数，取出最多的元素值和次数值
-        var max_count=0;
-        var sku_id;
-        for (key in obj){
-            if (obj[key]>max_count){
-                max_count=obj[key];
-                sku_id=key;
-            }
+        //计算多个数组的交集，得到skuId
+        var sku_id = skus[0];
+        for (var i = 1; i < skus.length; i++) {
+            sku_id = $(sku_id).filter(skus[i]);
         }
         //判断重复次数，处理请求
-        if (max_count>=2){
-            location.href = "http://item.gulimall.com/"+sku_id+".html";
-        }else {
+        if (sku_id != null && sku_id.length > 0) {
+            location.href = "http://item.gulimall.com/" + sku_id.get(0) + ".html";
+        } else {
             alert("无此商品！");
         }
     })
