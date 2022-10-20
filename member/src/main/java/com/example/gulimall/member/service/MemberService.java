@@ -7,6 +7,7 @@ import com.example.gulimall.member.exception.PhoneExistException;
 import com.example.gulimall.member.exception.UsernameExistException;
 import com.example.gulimall.member.vo.MemberLoginVo;
 import com.example.gulimall.member.vo.MemberRegistVo;
+import com.example.gulimall.member.vo.SocialUser;
 
 import java.util.Map;
 
@@ -24,5 +25,7 @@ public interface MemberService extends IService<MemberEntity> {
     void regist(MemberRegistVo vo) throws PhoneExistException, UsernameExistException;
 
     MemberEntity login(MemberLoginVo vo);
+
+    MemberEntity login(SocialUser vo) throws Exception;
 }
 

@@ -10,6 +10,7 @@ import com.example.gulimall.member.exception.UsernameExistException;
 import com.example.gulimall.member.feign.CouponFeignService;
 import com.example.gulimall.member.vo.MemberLoginVo;
 import com.example.gulimall.member.vo.MemberRegistVo;
+import com.example.gulimall.member.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,6 +35,18 @@ public class MemberController {
     @Autowired
     CouponFeignService couponFeignService;
 
+    //社交帐号登录注册，方法重载
+    @PostMapping("/login")
+    public R login(@RequestBody SocialUser vo) throws Exception {
+        MemberEntity memberEntity = memberService.login(vo);
+        if (memberEntity != null) {
+            //TODO 登陆成功的处理
+            return R.ok();
+        } else {
+            return R.error(BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(), BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
+        }
+    }
+
     @PostMapping("/login")
     public R login(@RequestBody MemberLoginVo vo) {
         MemberEntity memberEntity = memberService.login(vo);
@@ -41,7 +54,7 @@ public class MemberController {
             //TODO 登陆成功的处理
             return R.ok();
         } else {
-            return R.error(BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(),BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
+            return R.error(BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(), BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
         }
     }
 

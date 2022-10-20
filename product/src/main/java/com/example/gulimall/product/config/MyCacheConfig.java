@@ -25,7 +25,7 @@ public class MyCacheConfig {
     @Bean
     RedisCacheConfiguration redisCacheConfiguration(CacheProperties cacheProperties){
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig();
-        //修改默认配置
+        //修改默认配置，不使用默认的JDK序列化
         config = config.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
         config = config.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
         //将配置文件中的所有配置在此处全部设置生效
