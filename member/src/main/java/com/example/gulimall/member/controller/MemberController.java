@@ -36,8 +36,8 @@ public class MemberController {
     CouponFeignService couponFeignService;
 
     //社交帐号登录注册，方法重载
-    @PostMapping("/login")
-    public R login(@RequestBody SocialUser vo) throws Exception {
+    @PostMapping("/oauth2/login")
+    public R oauthLogin(@RequestBody SocialUser vo) throws Exception {
         MemberEntity memberEntity = memberService.login(vo);
         if (memberEntity != null) {
             //TODO 登陆成功的处理

@@ -41,7 +41,7 @@ public class OAuth2Controller {
             SocialUser socialUser = JSON.parseObject(json, SocialUser.class);
             //调用远程服务，判断当前用户是否注册过帐号
             try {
-                R r = memberFeignServer.login(socialUser);
+                R r = memberFeignServer.oauthLogin(socialUser);
                 if (r.getCode() == 0) {
                     //登陆成功，保存token到redis中可以做免密登录
                     redisTemplate.opsForValue().set("token", socialUser.getAccess_token(), Long.parseLong(socialUser.getAccess_token()), TimeUnit.MILLISECONDS);
