@@ -35,24 +35,23 @@ public class MemberController {
     @Autowired
     CouponFeignService couponFeignService;
 
-    //社交帐号登录注册，方法重载
+    //社交帐号授权登录
     @PostMapping("/oauth2/login")
     public R oauthLogin(@RequestBody SocialUser vo) throws Exception {
         MemberEntity memberEntity = memberService.login(vo);
         if (memberEntity != null) {
-            //TODO 登陆成功的处理
-            return R.ok();
+            return R.ok().setData(memberEntity);
         } else {
-            return R.error(BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(), BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
+            return R.error(BizCodeEnum.MEMBER_ACCOUNT_EXCEPTION.getCode(), BizCodeEnum.MEMBER_ACCOUNT_EXCEPTION.getMsg());
         }
     }
 
+    //账号密码普通登录
     @PostMapping("/login")
     public R login(@RequestBody MemberLoginVo vo) {
         MemberEntity memberEntity = memberService.login(vo);
         if (memberEntity != null) {
-            //TODO 登陆成功的处理
-            return R.ok();
+            return R.ok().setData(memberEntity);
         } else {
             return R.error(BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getCode(), BizCodeEnum.ACCOUNT_PASSWORD_INVALID_EXCEPTION.getMsg());
         }

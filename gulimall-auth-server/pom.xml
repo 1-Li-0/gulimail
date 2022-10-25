@@ -19,6 +19,12 @@
     </properties>
     <dependencies>
 
+        <!--整合springSession实现session共享-->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.example</groupId>
             <artifactId>common</artifactId>

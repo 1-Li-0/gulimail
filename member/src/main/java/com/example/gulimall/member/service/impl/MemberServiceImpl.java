@@ -103,11 +103,11 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                 Map<String, String> query = new HashMap<>();
                 query.put("access_token", vo.getAccess_token());
                 query.put("uid", uid);
+                entity.setCreateTime(new Date());
                 HttpResponse response = HttpUtils.doGet("https://api.weibo.com", "/2/users/show.json", "get", new HashMap<String, String>(), query);
-                if (response.getStatusLine().getStatusCode() == 0) {
+                if (response.getStatusLine().getStatusCode() == 200) {
                     JSONObject object = JSON.parseObject(EntityUtils.toString(response.getEntity()));
                     entity.setNickname(object.getString("name"));
-                    entity.setCreateTime(new Date());
                     entity.setGender("m".equals(object.getString("gender")) ? 1 : 0);
                     entity.setCity(object.getString("location"));
                 }

@@ -19,6 +19,10 @@
         <elasticsearch.version>7.4.2</elasticsearch.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
         <!--缓存的启动依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -36,7 +40,7 @@
             <artifactId>redisson</artifactId>
             <version>3.12.0</version>
         </dependency>
-        <!--此版本DIRECT_MEMORY_LIMIT设置会导致堆外内存溢出-->
+        <!--此版本DIRECT_MEMORY_LIMIT设置会导致堆外内存溢出，建议排除Lettuce-core使用Jedis客户端-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
