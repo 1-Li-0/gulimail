@@ -5,6 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ *  社交登录所需要的封装对象
+ */
 @Data
 public class MemberRespVo implements Serializable {
 	private Long id;
