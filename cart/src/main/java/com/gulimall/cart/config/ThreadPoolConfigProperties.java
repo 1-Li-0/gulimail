@@ -1,4 +1,4 @@
-package com.example.gulimall.product.config;
+package com.gulimall.cart.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

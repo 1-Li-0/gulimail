@@ -94,8 +94,8 @@
                 </div>
             </b>
             <ul>
-                <li style="width: 140px">
-                    <a th:if="${session.loginUser!=null}">您好，[[${session.loginUser.nickname}]]</a>
+                <li style="border: 0;width: 140px;white-space: nowrap">
+                    <a th:if="${session.loginUser!=null}">[[${session.loginUser.nickname}]]</a>
                     <a href="http://auth.gulimall.com/login.html" th:if="${session.loginUser==null}">你好，请登录</a>
                 </li>
                 <li>
@@ -121,7 +121,7 @@
         <div class="header_ico">
             <div class="header_gw">
                 <img src="/static/index/img/img_15.png"/>
-                <span><a href="/static//static//购物车\One_JDshop.html">我的购物车</a></span>
+                <span><a href="http://cart.gulimall.com/cart.html">我的购物车</a></span>
                 <span>0</span>
             </div>
             <div class="header_ko">

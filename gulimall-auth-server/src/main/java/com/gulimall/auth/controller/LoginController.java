@@ -106,6 +106,7 @@ public class LoginController {
             Map<String, String> errors = new HashMap<>();
             errors.put("msg", r.getData("msg", new TypeReference<String>() {
             }));
+            //消息保存在session中，只能取出一次
             redirectAttributes.addFlashAttribute("errors", errors);
             return "redirect:http://auth.gulimall.com/login.html";
         }
