@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -118,16 +119,16 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartVo updateItem(Long skuId, Integer check,Integer count) throws ExecutionException, InterruptedException {
+    public CartVo updateItem(Long skuId, Integer check, Integer count) throws ExecutionException, InterruptedException {
         BoundHashOperations<String, Object, Object> cartOps = getCartOps();
         CartItemVo cartItem = getCartItem(skuId);
-        if (check!=null){
-            cartItem.setCheck(check==1);
+        if (check != null) {
+            cartItem.setCheck(check == 1);
         }
-        if (count!=null){
+        if (count != null) {
             cartItem.setCount(count);
         }
-        cartOps.put(skuId.toString(),JSON.toJSONString(cartItem));
+        cartOps.put(skuId.toString(), JSON.toJSONString(cartItem));
         return getCart();
     }
 
@@ -136,6 +137,29 @@ public class CartServiceImpl implements CartService {
         BoundHashOperations<String, Object, Object> cartOps = getCartOps();
         cartOps.delete(skuId.toString());
         return getCart();
+    }
+
+    @Override
+    public List<CartItemVo> getOrderItems() {
+        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
+        if (userInfoTo.getUserId() == null) {
+            return null;
+        } else {
+            String cartKey = CART_PREFIX + userInfoTo.getUserId();
+            List<CartItemVo> cartItems = this.getCartItems(cartKey);
+            List<Long> skuIds = cartItems.stream().map(cartItemVo -> cartItemVo.getSkuId()).collect(Collectors.toList());
+            List<SkuInfoVo> skuInfoVos = productFeignServer.getCartItemsBySkuIds(skuIds);
+            if (cartItems != null && skuInfoVos != null) {
+                for (SkuInfoVo skuInfoVo : skuInfoVos) {
+                    for (CartItemVo cartItem : cartItems) {
+                        if (skuInfoVo.getSkuId() == cartItem.getSkuId()) {
+                            cartItem.setPrice(skuInfoVo.getPrice());
+                        }
+                    }
+                }
+            }
+            return cartItems;
+        }
     }
 
     //获取购物项的集合（购物车Cart的主要属性）

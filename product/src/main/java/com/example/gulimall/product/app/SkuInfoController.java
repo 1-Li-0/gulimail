@@ -1,15 +1,12 @@
 package com.example.gulimall.product.app;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.gulimall.product.entity.SkuInfoEntity;
 import com.example.gulimall.product.service.SkuInfoService;
@@ -31,6 +28,10 @@ public class SkuInfoController {
     @Autowired
     private SkuInfoService skuInfoService;
 
+    @GetMapping("/getCartItemsBySkuIds")
+    public List<SkuInfoEntity> getCartItemsBySkuIds(List<Long> skuIds){
+        return skuInfoService.listByIds(skuIds);
+    }
     /**
      * 列表
      */

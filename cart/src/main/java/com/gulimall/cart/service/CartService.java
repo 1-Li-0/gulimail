@@ -3,6 +3,7 @@ package com.gulimall.cart.service;
 import com.gulimall.cart.vo.CartItemVo;
 import com.gulimall.cart.vo.CartVo;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface CartService {
@@ -22,4 +23,6 @@ public interface CartService {
     CartVo updateItem(Long skuId, Integer check, Integer count) throws ExecutionException, InterruptedException;
 
     CartVo deleteItem(Long skuId) throws ExecutionException, InterruptedException;
+
+    List<CartItemVo> getOrderItems();
 }
