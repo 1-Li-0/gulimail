@@ -3,6 +3,20 @@ spring:
     host: 192.168.203.128
     port: 5672
     virtual-host: /
+    publisher-confirms: true #开启消息抵达Broker的确认
+    publisher-returns: true #开启消息抵达到队列的确认
+    template:
+      mandatory: true #只要抵达队列，以异步的方式优先回调这个returnConfirm
+    listener:
+      simple:
+        acknowledge-mode: manual #消息确认模式，消费端不进行自动确认（必须开启此配置）
+  thymeleaf:
+    cache: false #开发环境关闭模板引擎的缓存
+  session:
+    store-type: redis #指定springSession使用redis
+  redis:
+    host: 192.168.203.128
+    port: 6379
   datasource:
     username: root
     password: root
@@ -24,3 +38,9 @@ mybatis-plus:
 
 server:
   port: 9000
+
+gulimall:
+  thread:
+    keep-alive-time: 20
+    max-size: 50
+    core-size: 5

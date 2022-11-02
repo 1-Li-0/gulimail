@@ -1,14 +1,10 @@
-package com.gulimall.cart.vo;
+package com.example.gulimall.order.vo;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- *  购物项详情信息
- */
-public class CartItemVo {
+public class OrderItemVo {
     private Long skuId;
-    private Boolean check = true;
     private String title;
     private String image;
     private List<String> skuAttr;
@@ -22,14 +18,6 @@ public class CartItemVo {
 
     public void setSkuId(Long skuId) {
         this.skuId = skuId;
-    }
-
-    public Boolean getCheck() {
-        return check;
-    }
-
-    public void setCheck(Boolean check) {
-        this.check = check;
     }
 
     public String getTitle() {
@@ -78,5 +66,4 @@ public class CartItemVo {
     public BigDecimal getTotalPrice() {
         return this.price.multiply(new BigDecimal(""+this.count));
     }
-
 }

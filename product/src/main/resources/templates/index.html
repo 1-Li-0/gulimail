@@ -94,7 +94,7 @@
                 </div>
             </b>
             <ul>
-                <li style="border: 0;width: 140px;white-space: nowrap">
+                <li style="border: 0;width: 100px;white-space: nowrap">
                     <a th:if="${session.loginUser!=null}">[[${session.loginUser.nickname}]]</a>
                     <a href="http://auth.gulimall.com/login.html" th:if="${session.loginUser==null}">你好，请登录</a>
                 </li>
@@ -103,7 +103,7 @@
                 </li>
                 <span>|</span>
                 <li>
-                    <a href="/static//static/#">我的订单</a>
+                    <a href="http://order.gulimall.com/list.html">我的订单</a>
                 </li>
 
 

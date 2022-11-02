@@ -62,7 +62,7 @@
                     <a href="http://auth.gulimall.com/login.html" th:if="${session.loginUser==null}">你好，请登录</a>
                 </li>
                 <li><a th:if="${session.loginUser==null}" href="http://auth.gulimall.com/reg.html" style="color: red;">免费注册</a> |</li>
-                <li><a href="/static/item/javascript:;" class="aa">我的订单</a> |</li>
+                <li><a href="http://order.gulimall.com/list.html" class="aa">我的订单</a> |</li>
                 <li class="jingdong"><a href="/static/item/javascript:;">我的京东</a><span
                         class="glyphicon glyphicon-menu-down">|</span>
                     <ol class="jingdong_ol">
@@ -1542,11 +1542,11 @@
             skus.push($(this).attr("skus").split(","));
         })
         //计算多个数组的交集，得到skuId
-        var sku_id = skus[0];
+        var sku_id = skus[0]; //起始元素
         for (var i = 1; i < skus.length; i++) {
-            sku_id = $(sku_id).filter(skus[i]);
+            sku_id = $(sku_id).filter(skus[i]); //从第一个元素开始依次求交集
         }
-        //判断重复次数，处理请求
+        //判断是否存在最后的交集结果，处理请求
         if (sku_id != null && sku_id.length > 0) {
             location.href = "http://item.gulimall.com/" + sku_id.get(0) + ".html";
         } else {

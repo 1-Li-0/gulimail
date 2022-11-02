@@ -29,6 +29,7 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!--配置解析依赖，自定义配置属性-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
