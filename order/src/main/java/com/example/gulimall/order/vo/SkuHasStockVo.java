@@ -1,4 +1,4 @@
-package com.example.gulimall.ware.vo;
+package com.example.gulimall.order.vo;
 
 import lombok.Data;
 

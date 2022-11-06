@@ -29,7 +29,7 @@ public class SkuInfoController {
     private SkuInfoService skuInfoService;
 
     @GetMapping("/getCartItemsBySkuIds")
-    public List<SkuInfoEntity> getCartItemsBySkuIds(List<Long> skuIds){
+    public List<SkuInfoEntity> getCartItemsBySkuIds(@RequestParam("skuIds")List<Long> skuIds){
         return skuInfoService.listByIds(skuIds);
     }
     /**

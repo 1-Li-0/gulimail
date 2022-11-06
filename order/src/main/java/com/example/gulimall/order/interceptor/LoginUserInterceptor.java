@@ -17,15 +17,18 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
-        MemberRespVo obj = (MemberRespVo) request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
-        if (obj!=null){
-            loginUser.set(obj);
+        if (loginUser.get()!=null){
             return true;
         }else {
-            //没登陆，需要重定向到登陆页面
-            response.sendRedirect("http://auth.gulimall.com/login.html");
-            request.getSession().setAttribute("noLogin","请先登录");
-            return false;
+            MemberRespVo obj = (MemberRespVo) request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
+            if (obj!=null){
+                loginUser.set(obj);
+                return true;
+            }
         }
+        request.getSession().setAttribute("noLogin","请先登录");
+        //没登陆，需要重定向到登陆页面
+        response.sendRedirect("http://auth.gulimall.com/login.html");
+        return false;
     }
 }

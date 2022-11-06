@@ -55,7 +55,7 @@ public class CartInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         UserInfoTo userInfoTo = threadLocal.get();
         //如果请求的cookie中没有user-key，则将生成的cookie返回给浏览器保存
-        if (!userInfoTo.isTempUser()){
+        if (!userInfoTo.isTempUser() && userInfoTo.getUserId()==null){
             Cookie cookie = new Cookie(CartConstant.TEMP_USER_COOKIE_NAME, userInfoTo.getUserKey());
             cookie.setDomain("gulimall.com");
             cookie.setMaxAge(CartConstant.TEMP_USER_COOKIE_TIMEOUT);

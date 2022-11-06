@@ -5,12 +5,22 @@ import java.util.List;
 
 public class OrderItemVo {
     private Long skuId;
+    private Boolean check;
     private String title;
     private String image;
     private List<String> skuAttr;
     private BigDecimal price;
     private Integer count;
     private BigDecimal totalPrice;
+    private boolean hasStock;
+
+    public boolean isHasStock() {
+        return hasStock;
+    }
+
+    public void setHasStock(boolean hasStock) {
+        this.hasStock = hasStock;
+    }
 
     public Long getSkuId() {
         return skuId;
@@ -18,6 +28,14 @@ public class OrderItemVo {
 
     public void setSkuId(Long skuId) {
         this.skuId = skuId;
+    }
+
+    public Boolean getCheck() {
+        return check;
+    }
+
+    public void setCheck(Boolean check) {
+        this.check = check;
     }
 
     public String getTitle() {

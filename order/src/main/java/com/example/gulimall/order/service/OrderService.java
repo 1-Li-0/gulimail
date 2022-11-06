@@ -1,11 +1,15 @@
 package com.example.gulimall.order.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.example.common.to.MemberRespVo;
 import com.example.common.utils.PageUtils;
 import com.example.gulimall.order.entity.OrderEntity;
 import com.example.gulimall.order.vo.OrderConfirmVo;
+import com.example.gulimall.order.vo.OrderSubmitRespVo;
+import com.example.gulimall.order.vo.OrderSubmitVo;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 订单
@@ -19,6 +23,8 @@ public interface OrderService extends IService<OrderEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     //订单确认页需要的数据
-    OrderConfirmVo confirmOrder();
+    OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
+
+    OrderSubmitRespVo submitOrder(OrderSubmitVo vo);
 }
 

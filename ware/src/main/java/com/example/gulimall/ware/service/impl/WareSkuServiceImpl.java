@@ -1,8 +1,8 @@
 package com.example.gulimall.ware.service.impl;
 
+import com.example.common.to.SkuHasStockVo;
 import com.example.common.utils.R;
 import com.example.gulimall.ware.feign.ProductFeignService;
-import com.example.gulimall.ware.vo.SkuHasStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,8 +20,6 @@ import com.example.gulimall.ware.dao.WareSkuDao;
 import com.example.gulimall.ware.entity.WareSkuEntity;
 import com.example.gulimall.ware.service.WareSkuService;
 import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
 
 
 @Service("wareSkuService")
