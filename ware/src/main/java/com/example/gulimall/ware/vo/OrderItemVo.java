@@ -1,4 +1,4 @@
-package com.example.gulimall.order.vo;
+package com.example.gulimall.ware.vo;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,8 +12,9 @@ public class OrderItemVo {
     private String title;
     private String image;
     private List<String> skuAttr;
-    private BigDecimal price = new BigDecimal("0");
-    private Integer count = 0;
+    private BigDecimal price;
+    private Integer count;
+    private BigDecimal totalPrice;
     private boolean hasStock;
 
     public boolean isHasStock() {

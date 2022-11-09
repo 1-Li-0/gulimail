@@ -140,7 +140,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartItemVo> getOrderItems() {
+    public List<CartItemVo> getCurrentUserItems() {
         UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
         if (userInfoTo.getUserId() == null) {
             return null;

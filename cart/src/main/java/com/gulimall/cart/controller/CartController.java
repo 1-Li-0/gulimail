@@ -26,9 +26,9 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
-    @GetMapping("/getOrderItems")
-    public @ResponseBody List<CartItemVo> getOrderItems(){
-        return cartService.getOrderItems();
+    @GetMapping("/getCurrentUserItems")
+    public @ResponseBody List<CartItemVo> getCurrentUserItems(){
+        return cartService.getCurrentUserItems();
     }
 
     //删除购物项

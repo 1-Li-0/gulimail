@@ -9,6 +9,7 @@ package com.example.common.exception;
  * 13 购物车
  * 14 物流
  * 15 用户
+ * 21 库存
  */
 public enum BizCodeEnum {
     UNKNOW_EXCEPTION(100000, "系统未知异常"),
@@ -18,7 +19,8 @@ public enum BizCodeEnum {
     USER_EXIST_EXCEPTION(15001, "用户已存在"),
     PHONE_EXIST_EXCEPTION(15002, "手机号已注册"),
     ACCOUNT_PASSWORD_INVALID_EXCEPTION(15003, "账号或密码错误"),
-    MEMBER_ACCOUNT_EXCEPTION(15004, "社交账号异常，登陆失败");
+    MEMBER_ACCOUNT_EXCEPTION(15004, "社交账号异常，登陆失败"),
+    NO_STOCK_EXCEPTION(21001, "库存不足");
 
     private int code;
     private String msg;

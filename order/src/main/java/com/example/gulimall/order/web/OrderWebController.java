@@ -32,7 +32,7 @@ public class OrderWebController {
             return "redirect:http://order.gulimall.com/toTrade";
         }else {
             //成功
-            model.addAttribute("order",respVo.getOrder());
+            model.addAttribute("submitOrder",respVo);
             return "pay";
         }
     }

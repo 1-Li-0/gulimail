@@ -8,6 +8,6 @@ import java.util.List;
 
 @FeignClient("cart")
 public interface CartFeignServer {
-    @GetMapping("/getOrderItems")
-    List<OrderItemVo> getOrderItems();
+    @GetMapping("/getCurrentUserItems")
+    List<OrderItemVo> getCurrentUserItems();
 }

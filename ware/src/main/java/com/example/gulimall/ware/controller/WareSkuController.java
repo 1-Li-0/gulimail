@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.example.common.exception.BizCodeEnum;
 import com.example.common.to.SkuHasStockVo;
+import com.example.gulimall.ware.exception.NoStockException;
+import com.example.gulimall.ware.vo.OrderLockStockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,16 @@ import com.example.common.utils.R;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+    @PostMapping("/lockStock")
+    public R orderLockStock(@RequestBody OrderLockStockVo vo){
+        try {
+            Boolean b = wareSkuService.orderLockStock(vo);
+            return R.ok();
+        } catch (NoStockException e) {
+            return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(),e.getMessage());
+        }
+    }
 
     @PostMapping("/hasStock")
     public R getSkuHasStock(@RequestBody List<Long> skuIds){

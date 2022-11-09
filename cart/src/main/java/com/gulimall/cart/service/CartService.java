@@ -24,5 +24,5 @@ public interface CartService {
 
     CartVo deleteItem(Long skuId) throws ExecutionException, InterruptedException;
 
-    List<CartItemVo> getOrderItems();
+    List<CartItemVo> getCurrentUserItems();
 }

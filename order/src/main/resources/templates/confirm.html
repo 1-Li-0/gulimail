@@ -676,8 +676,10 @@
         <div class="yun1" th:each="item:${orderConfirmData.items}">
             <img th:src="${item.image}" class="yun"/>
             <div class="mi">
-                <p th:text="${item.title}"><span style="color: red;"> ￥ [[${#numbers.formatDecimal(item.price,1,2)}]]</span> <span> x[[${#numbers.formatDecimal(item.count,1,2)}]] </span> <span th:text="${orderConfirmData.hasStock[item.skuId]?'有货':'无货'}"></span>
-                </p>
+                <p th:text="${item.title}"></p>
+                <span style="color: red;"> ￥ [[${#numbers.formatDecimal(item.price,1,2)}]]</span>
+                <span> x[[${#numbers.formatDecimal(item.count,1,2)}]] </span>
+                <span th:text="${orderConfirmData.hasStock[item.skuId]?'有货':'无货'}"></span>
                 <p><span>0.095kg</span></p>
                 <p class="tui-1"><img src="/static/order/confirm/img/i_07.png"/>支持7天无理由退货</p>
             </div>
@@ -743,7 +745,7 @@
         <p class="yfze_a"><span class="z">应付总额：</span><span class="hq">￥<b id="payPrice"></b></span></p>
         <p class="yfze_b">寄送至： <b id="FareAddress"></b> 收货人：<b id="FareName"></b> <b id="FarePhone"></b></p>
     </div>
-    <form action="http://order.gulimall.com/submitOrder.do">
+    <form action="http://order.gulimall.com/submitOrder.do" method="post">
         <input type="hidden" name="orderToken" th:value="${orderConfirmData.orderToken}">
         <input type="hidden" name="addrId" id="addrIdInput">
         <input type="hidden" name="payPrice" id="payPriceInput">
@@ -991,22 +993,23 @@
     }
 
     $(".addr-items p").click(function () {
-        $(".addr-items p").attr("def","0");
-        $(this).attr("def","1");
+        $(".addr-items p").attr("def", "0");
+        $(this).attr("def", "1");
         addrHighLight();
         var addrId = $(this).attr("addrId");
         getFare(addrId);
 
     })
+
     function getFare(addrId) {
         $("#addrIdInput").val(addrId);
-        $.get("http://gulimall.com/api/ware/wareinfo/getFare?addrId="+addrId,function (data) {
+        $.get("http://gulimall.com/api/ware/wareinfo/getFare?addrId=" + addrId, function (data) {
             $("#FarePrice").text(data.data.farePrice);
-            var payprice = [[${orderConfirmData.total}]]*1 + data.data.farePrice * 1;
+            var payprice = [[${orderConfirmData.total}]] * 1 + data.data.farePrice * 1;
             $("#payPrice").text(payprice);
             $("#payPriceInput").val(payprice);
 
-            $("#FareAddress").text(data.data.address.province+" "+data.data.address.detailAddress);
+            $("#FareAddress").text(data.data.address.province + " " + data.data.address.detailAddress);
             $("#FareName").text(data.data.address.name);
             $("#FarePhone").text(data.data.address.phone);
         })
