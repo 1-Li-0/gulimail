@@ -18,6 +18,11 @@
         <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
     </properties>
     <dependencies>
+        <!--开启aspectJ代理需要的依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
         <!--配置解析依赖，自定义配置属性-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

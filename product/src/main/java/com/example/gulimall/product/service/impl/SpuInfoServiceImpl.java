@@ -13,6 +13,7 @@ import com.example.gulimall.product.feign.SearchFeignService;
 import com.example.gulimall.product.feign.WareFeignService;
 import com.example.gulimall.product.service.*;
 import com.example.gulimall.product.vo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     @Transactional //数据量较多，保证事务的一致性
+    @GlobalTransactional //远程调用，并发量低，适合Seata的AT模式
     public void saveSpuInfo(SpuSaveVo vo) {
         //保存spu基本信息pms_spu_info
         SpuInfoEntity spuInfoEntity = new SpuInfoEntity();

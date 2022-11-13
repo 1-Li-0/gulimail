@@ -17,6 +17,7 @@ import com.example.gulimall.order.feign.WareFeignServer;
 import com.example.gulimall.order.interceptor.LoginUserInterceptor;
 import com.example.gulimall.order.service.OrderItemService;
 import com.example.gulimall.order.vo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -121,13 +122,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
+
+    /** @GlobalTransactional 分布式事务不适合高并发，事务管理用了锁机制---串行化，效率低
+     *  高并发可以使用RabbitMQ的“延时队列”机制
+     */
     @Override
     @Transactional
     public OrderSubmitRespVo submitOrder(OrderSubmitVo vo) {
         submitVoThreadLocal.set(vo); //后面的线程需要用到
         OrderSubmitRespVo respVo = new OrderSubmitRespVo();
         respVo.setCode(0);
-        //校验token【token令牌的对比和删除必须保证原子性】
+        //校验token【token令牌的对比和删除必须保证原子性---lua脚本】
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
         Long result = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class), Arrays.asList(OrderConstant.ORDER_REDIS_TOKEN_PREFIX + memberRespVo.getId()), vo.getOrderToken());
@@ -159,7 +164,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //验价失败
                 respVo.setCode(2);
             }
-        }else {
+        } else {
             //token失效
             respVo.setCode(1);
         }
@@ -176,7 +181,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderEntity.setCreateTime(new Date());
         this.save(orderEntity);
         List<OrderItemEntity> orderItems = order.getOrderItems();
-        orderItemService.saveBatch(orderItems);
+        for (OrderItemEntity orderItem : orderItems) {
+            orderItemService.save(orderItem);
+        }
     }
 
     /**
@@ -267,7 +274,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         //品牌
         entity.setSpuBrand(spuInfo.getBrandId().toString());
         //积分和成长值
-        int gift = cartItem.getPrice().multiply(new BigDecimal(cartItem.getCount().toString())).intValue();
+        Integer gift = cartItem.getPrice().multiply(new BigDecimal(cartItem.getCount().toString())).intValue();
         entity.setGiftGrowth(gift);
         entity.setGiftIntegration(gift);
         //订单项的价格信息【优惠没有做】
