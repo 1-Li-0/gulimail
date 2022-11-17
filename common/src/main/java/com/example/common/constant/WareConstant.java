@@ -47,4 +47,25 @@ public class WareConstant {
             return msg;
         }
     }
+    public enum WareOrderTaskDetailStatusEnum{
+        LOCKED(1,"锁定库存"),
+        OPEN_LOCK(2,"解锁库存"),
+        ORDER_SUCCESS(3,"库存扣减成功");
+
+        private final int code;
+        private final String msg;
+
+        WareOrderTaskDetailStatusEnum(int code, String msg) {
+            this.code = code;
+            this.msg = msg;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMsg() {
+            return msg;
+        }
+    }
 }

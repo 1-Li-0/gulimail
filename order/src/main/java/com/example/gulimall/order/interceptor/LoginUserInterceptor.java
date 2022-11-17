@@ -3,6 +3,7 @@ package com.example.gulimall.order.interceptor;
 import com.example.common.constant.AuthServerConstant;
 import com.example.common.to.MemberRespVo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,13 @@ public class LoginUserInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
+        //内部服务访问需要放行
+        boolean match = new AntPathMatcher().match("/order/order/status/**", request.getRequestURI());
+        if (match){
+            return true;
+        }
+
+        //拦截方法
         if (loginUser.get()!=null){
             return true;
         }else {

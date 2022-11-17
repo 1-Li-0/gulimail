@@ -1,6 +1,6 @@
 package com.example.gulimall.order.config;
 
-import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -10,23 +10,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * RabbitMQ整合springboot的配置
+ */
 @Configuration
 public class MyRabbitConfig {
     @Autowired
     RabbitTemplate rabbitTemplate;
 
-    //使用JSON序列化机制进行消息转换
+    //使用JSON序列化机制进行消息对象转换
     @Bean
     public MessageConverter messageConverter(){
         return new Jackson2JsonMessageConverter();
     }
 
-    /** 定制RabbitTemplate
-     *  1.开启消息确认的配置功能
+    /** 定制RabbitTemplate【消息确认机制pulisher，consumer（手动ack）】
+     *  1.每个消息都要在数据库【redis/mysql】中记录日志【成功抵达/错误抵达】；定期将失败的消息再发一次
+     *    【数据库中保存了消息的交换机，路由键，消息对象的JSON字符串，消息对象类型...】
+     *  2.开启消息确认的配置功能
      *    spring.rabbitmq.publisher-confirms=true；
-     *    spring.rabbitmq.publisher-returns=true
-     *  2.消息确认的回调
+     *    spring.rabbitmq.publisher-returns=true；
+     *  3.消息确认的回调函数
      *   setConfirmCallback(new RabbitTemplate.ConfirmCallback() {})
      *   setReturnCallback(new RabbitTemplate.ReturnCallback() {})
      */
@@ -40,7 +47,11 @@ public class MyRabbitConfig {
              */
             @Override
             public void confirm(CorrelationData correlationData, boolean b, String s) {
-
+                if (b){
+                    //correlationData.getId()作为id，查询并修改日志状态为1-已发送
+                }else {
+                    //重发消息（查询数据库保存的消息后重发）
+                }
             }
         });
         rabbitTemplate.setReturnCallback(new RabbitTemplate.ReturnCallback() {
@@ -53,8 +64,61 @@ public class MyRabbitConfig {
              */
             @Override
             public void returnedMessage(Message message, int i, String s, String s1, String s2) {
-
+                //修改日志状态为2-错误抵达
             }
         });
+    }
+
+    @Bean
+    public Exchange orderEventExchange(){
+        return new TopicExchange("order-event-exchange",true,false);
+    }
+
+    @Bean
+    public Queue orderReleaseOrderQueue(){
+        return new Queue("order.release.order.queue",true,false,false);
+    }
+
+    /**
+     * 延迟队列
+     */
+    @Bean
+    public Queue orderDelayQueue(){
+        Map<String,Object> args = new HashMap<>();
+        args.put("x-dead-letter-exchange","order-event-exchange");
+        args.put("x-dead-letter-routing-key","order.release.order");
+        args.put("x-message-ttl",30000);
+        return new Queue("order.delay.queue",true,false,false, args);
+    }
+
+    @Bean
+    public Binding orderDelayBinding(){
+        return new Binding("order.delay.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.create.order",
+                null);
+    }
+
+    @Bean
+    public Binding orderReleaseOrderBinding(){
+        return new Binding("order.release.order.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.release.order",
+                null);
+    }
+
+    /**
+     *  订单解锁后还需要绑定库存解锁队列，检查库存是否解锁
+     * @return
+     */
+    @Bean
+    public Binding orderReleaseOtherBinding(){
+        return new Binding("stock.release.stock.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.release.other.#",
+                null);
     }
 }

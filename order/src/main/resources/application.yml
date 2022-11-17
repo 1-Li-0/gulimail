@@ -44,3 +44,12 @@ gulimall:
     keep-alive-time: 20
     max-size: 50
     core-size: 5
+
+#设置超时时间可以防止超时异常
+#feign:
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 10000
+#        readTimeout: 10000
+

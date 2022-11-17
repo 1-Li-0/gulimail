@@ -6,9 +6,11 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.example.common.constant.OrderConstant;
 import com.example.common.constant.OrderStatusEnum;
 import com.example.common.to.MemberRespVo;
+import com.example.common.to.OrderTo;
 import com.example.common.to.SkuHasStockVo;
 import com.example.common.utils.R;
 import com.example.gulimall.order.dao.OrderItemDao;
+import com.example.gulimall.order.entity.MqMessageEntity;
 import com.example.gulimall.order.entity.OrderItemEntity;
 import com.example.gulimall.order.feign.CartFeignServer;
 import com.example.gulimall.order.feign.MemberFeignServer;
@@ -18,6 +20,11 @@ import com.example.gulimall.order.interceptor.LoginUserInterceptor;
 import com.example.gulimall.order.service.OrderItemService;
 import com.example.gulimall.order.vo.*;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -65,6 +72,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     ProductFeignServer productFeignServer;
     @Autowired
     OrderItemService orderItemService;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -123,8 +132,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
 
-    /** @GlobalTransactional 分布式事务不适合高并发，事务管理用了锁机制---串行化，效率低
-     *  高并发可以使用RabbitMQ的“延时队列”机制
+    /**
+     * @GlobalTransactional 分布式事务不适合高并发，事务管理用了锁机制---串行化，效率低
+     * 高并发可以使用RabbitMQ的“延时队列”机制
      */
     @Override
     @Transactional
@@ -139,6 +149,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         if (result == 1) {
             //对比删除操作成功，生成订单
             OrderCreateTo order = createOrder();
+            //验价
             if (order.getOrder().getPayAmount().subtract(vo.getPayPrice()).abs().doubleValue() < 0.01) {
                 //验价成功，保存到数据库
                 saveOrder(order);
@@ -154,8 +165,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 stockVo.setOrderItems(itemVoList);
                 R r = wareFeignServer.orderLockStock(stockVo);
                 if (r.getCode() == 0) {
-                    //成功，设置返回的对象信息
+                    //订单创建成功，设置返回的对象信息
                     respVo.setOrder(order.getOrder());
+                    //给RabbitMQ发送消息
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
                 } else {
                     //锁库存异常
                     respVo.setCode(r.getCode());
@@ -165,10 +178,56 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 respVo.setCode(2);
             }
         } else {
-            //token失效
+            //redis操作失败
             respVo.setCode(1);
         }
         return respVo;
+    }
+
+    @Override
+    public OrderEntity getOrderStatus(String orderSn) {
+        return this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+    }
+
+    /**
+     * 关闭订单(超时)
+     */
+    @Override
+    public void closeOrder(OrderEntity entity) {
+        //关闭订单前，必须查询当前状态是否未支付
+        OrderEntity orderEntity = this.getById(entity.getId());
+        if (orderEntity.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()) {
+            OrderEntity update = new OrderEntity();
+            update.setId(entity.getId());
+            update.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(update);
+            //发送MQ检查库存
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(orderEntity, orderTo);
+            //TODO 消息丢失【重点】/消息重复（幂等性已处理）/消息积压
+            CorrelationData correlationData = new CorrelationData(orderTo.getOrderSn());
+            String exchange = "order-event-exchange";
+            String routingKey = "order.release.other";
+            /** 未创建相关service和dao
+             * 将correlationData.getId()作为消息id，orderTo对象JSON转化的内容作为字符串内容，对象类型，发送状态（0-新建）等信息保存在数据库
+             * MqMessageEntity messageEntity = new MqMessageEntity();
+             * messageEntity.setMessageId(correlationData.getId());
+             * messageEntity.setMessageStatus(0);
+             * messageEntity.setContent(JSON.toJSONString(orderTo));
+             * messageEntity.setClassType(orderTo.getClass().toString());
+             * messageEntity.setToExchane(exchange);
+             * messageEntity.setRoutingKey(routingKey);
+             * Date date = new Date();
+             * messageEntity.setCreateTime(date);
+             * messageEntity.setUpdateTime(date);
+             * mqMessageService.save(messageEntity);
+             */
+            try {
+                rabbitTemplate.convertAndSend(exchange, routingKey, orderTo, correlationData);
+            } catch (AmqpException e) {
+                //TODO 重发消息
+            }
+        }
     }
 
     /**

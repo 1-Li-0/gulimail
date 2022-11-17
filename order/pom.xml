@@ -18,6 +18,10 @@
         <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
         <!--开启aspectJ代理需要的依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

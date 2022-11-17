@@ -12,6 +12,16 @@ spring:
     name: ware
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+  rabbitmq:
+    host: 192.168.203.128
+    virtual-host: /
+    publisher-confirms: true #开启消息抵达Broker的确认
+    publisher-returns: true #开启消息抵达到队列的确认
+    template:
+      mandatory: true #只要抵达队列，以异步的方式优先回调这个returnConfirm
+    listener:
+      simple:
+        acknowledge-mode: manual #消息确认模式，消费端不进行自动确认（必须开启此配置）
 
 mybatis-plus:
   mapper-locations:
