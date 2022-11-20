@@ -12,12 +12,14 @@ import com.example.common.utils.R;
 import com.example.gulimall.order.dao.OrderItemDao;
 import com.example.gulimall.order.entity.MqMessageEntity;
 import com.example.gulimall.order.entity.OrderItemEntity;
+import com.example.gulimall.order.entity.PaymentInfoEntity;
 import com.example.gulimall.order.feign.CartFeignServer;
 import com.example.gulimall.order.feign.MemberFeignServer;
 import com.example.gulimall.order.feign.ProductFeignServer;
 import com.example.gulimall.order.feign.WareFeignServer;
 import com.example.gulimall.order.interceptor.LoginUserInterceptor;
 import com.example.gulimall.order.service.OrderItemService;
+import com.example.gulimall.order.service.PaymentInfoService;
 import com.example.gulimall.order.vo.*;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.amqp.AmqpException;
@@ -31,6 +33,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -74,6 +77,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     OrderItemService orderItemService;
     @Autowired
     RabbitTemplate rabbitTemplate;
+    @Autowired
+    PaymentInfoService paymentInfoService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -90,6 +95,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderConfirmVo confirmVo = new OrderConfirmVo();
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+//        RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         //选择支付的购物项【重新从购物车获取数据】
         CompletableFuture<Void> getItemFuture = CompletableFuture.runAsync(() -> {
             //异步线程请求无法获取原请求的ThreadLocal，需要重新设置后再远程调用
@@ -185,7 +191,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Override
-    public OrderEntity getOrderStatus(String orderSn) {
+    public OrderEntity getOrderByOrderSn(String orderSn) {
         return this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
     }
 
@@ -228,6 +234,56 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //TODO 重发消息
             }
         }
+    }
+
+    @Override
+    public PayVo getOrderPayInfo(String orderSn) {
+        PayVo payVo = new PayVo();
+        payVo.setOut_trade_no(orderSn);
+
+        OrderEntity order = this.getOrderByOrderSn(orderSn);
+        BigDecimal bigDecimal = order.getPayAmount().setScale(2, RoundingMode.UP);
+        payVo.setTotal_amount(bigDecimal.toString());
+        List<OrderItemEntity> orderItemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        payVo.setSubject(orderItemEntities.get(0).getSkuName());
+        payVo.setBody(orderItemEntities.get(0).getSkuAttrsVals());
+        return payVo;
+    }
+
+    @Override
+    public PageUtils queryPageWithItems(Map<String, Object> params) {
+        MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
+        IPage<OrderEntity> page = this.page(
+                new Query<OrderEntity>().getPage(params),
+                new QueryWrapper<OrderEntity>().eq("member_id",memberRespVo.getId()).orderByDesc("id")
+        );
+        List<OrderEntity> orderEntities = page.getRecords().stream().map(order -> {
+            List<OrderItemEntity> itemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(itemEntities);
+            return order;
+        }).collect(Collectors.toList());
+        //设置订单项信息
+        page.setRecords(orderEntities);
+        return new PageUtils(page);
+    }
+
+    @Override
+    public String handlePayResult(PayAsyncVo vo) {
+        //保存交易流水
+        PaymentInfoEntity paymentInfo = new PaymentInfoEntity();
+        paymentInfo.setOrderSn(vo.getOut_trade_no());
+        paymentInfo.setAlipayTradeNo(vo.getTrade_no());
+        paymentInfo.setTotalAmount(new BigDecimal(vo.getTotal_amount()));
+        paymentInfo.setPaymentStatus(vo.getTrade_status());
+        paymentInfo.setCreateTime(new Date());
+        paymentInfo.setSubject(vo.getSubject());
+        paymentInfo.setCallbackTime(vo.getNotify_time());
+        paymentInfoService.save(paymentInfo);
+        //修改订单状态
+        if ("TRADE_SUCCESS".equals(vo.getTrade_status()) || "TRADE_FINISH".equals(vo.getTrade_status())){
+            this.baseMapper.updateOrderStatus(vo.getOut_trade_no(),OrderStatusEnum.PAYED.getCode());
+        }
+        return "success";
     }
 
     /**

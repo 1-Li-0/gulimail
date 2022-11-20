@@ -10,6 +10,7 @@ import java.util.Date;
  */
 @Data
 public class MemberRespVo implements Serializable {
+	//会员id
 	private Long id;
 	private Long levelId;
 	private String username;

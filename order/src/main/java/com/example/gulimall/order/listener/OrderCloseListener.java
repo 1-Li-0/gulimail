@@ -22,6 +22,7 @@ public class OrderCloseListener {
         System.out.println("订单已过期!");
         try {
             orderService.closeOrder(entity);
+            //TODO 调用支付宝的主动收单接口trade_close结束支付流程
             channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);//不批量确认
         }catch (Exception e){
             channel.basicReject(message.getMessageProperties().getDeliveryTag(),true);//拒绝后，消息回到队列

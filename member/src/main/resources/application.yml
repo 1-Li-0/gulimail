@@ -10,6 +10,13 @@ spring:
         server-addr: localhost:8848
   application:
     name: member
+  thymeleaf:
+    cache: false
+  session:
+    store-type: redis
+  redis:
+    host: 192.168.203.128
+    port: 6379
 
 mybatis-plus:
   mapper-locations:

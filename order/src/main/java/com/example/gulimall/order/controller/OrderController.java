@@ -29,10 +29,17 @@ public class OrderController {
 
     @GetMapping("/status/{orderSn}")
     public R getOrderStatus(@PathVariable("orderSn") String orderSn){
-        OrderEntity vo = orderService.getOrderStatus(orderSn);
+        OrderEntity vo = orderService.getOrderByOrderSn(orderSn);
         return R.ok().setData(vo);
     }
 
+    //远程调用分页查询订单信息和订单项详情
+    @PostMapping("/listWithItems")
+    public R listWithItems(@RequestBody Map<String, Object> params){
+        PageUtils page = orderService.queryPageWithItems(params);
+
+        return R.ok().put("page", page);
+    }
     /**
      * 列表
      */

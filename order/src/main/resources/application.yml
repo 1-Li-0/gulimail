@@ -28,6 +28,8 @@ spring:
         server-addr: localhost:8848
   application:
     name: order
+  mvc:
+    date-format: yyyy-MM-dd HH:mm:ss
 
 mybatis-plus:
   mapper-locations:
@@ -52,4 +54,3 @@ gulimall:
 #      default:
 #        connectTimeout: 10000
 #        readTimeout: 10000
-

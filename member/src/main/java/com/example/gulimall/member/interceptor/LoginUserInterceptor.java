@@ -1,4 +1,4 @@
-package com.example.gulimall.order.interceptor;
+package com.example.gulimall.member.interceptor;
 
 import com.example.common.constant.AuthServerConstant;
 import com.example.common.to.MemberRespVo;
@@ -19,10 +19,8 @@ public class LoginUserInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
         //内部服务访问需要放行
-        AntPathMatcher pathMatcher = new AntPathMatcher();
-        boolean match1 = pathMatcher.match("/order/order/status/**", request.getRequestURI());
-        boolean match2 = pathMatcher.match("/pay/notify", request.getRequestURI());
-        if (match1 || match2){
+        boolean match = new AntPathMatcher().match("/member/**", request.getRequestURI());
+        if (match){
             return true;
         }
 
