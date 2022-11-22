@@ -10,10 +10,14 @@ import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
 
+/**
+ *  Seata分布式锁需要配置数据库，统一管理数据库的操作
+ */
 @Configuration
 public class MySeataConfig {
     @Autowired
     DataSourceProperties dataSourceProperties;
+
     @Bean
     public DataSource dataSource(DataSourceProperties dataSourceProperties){
         HikariDataSource dataSource = dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
