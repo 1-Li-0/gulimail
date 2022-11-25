@@ -318,7 +318,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         try {
             //浏览器编码和后端编码不一样
             encode = URLEncoder.encode(value, "UTF-8");
-            //编码转换时空格会变成+，需要替换
+            //编码转换时：空格会变成+，需要替换
             encode = encode.replace("+", "%20");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

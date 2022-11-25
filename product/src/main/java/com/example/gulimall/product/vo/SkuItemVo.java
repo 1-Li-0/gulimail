@@ -27,6 +27,8 @@ public class SkuItemVo {
     //查询spu的规则参数属性
     List<SpuItemAttrGroupVo> groupAttrs;
 
+    SeckillInfoVo seckillInfoVo;
+
     @Data
     public static class SpuItemAttrGroupVo{
         private String groupName;

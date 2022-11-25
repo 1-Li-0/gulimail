@@ -1,9 +1,12 @@
 package com.example.gulimall.product.service.impl;
 
-import com.example.gulimall.product.config.MyThreadPoolConfig;
+import com.alibaba.fastjson.TypeReference;
+import com.example.common.utils.R;
 import com.example.gulimall.product.entity.SkuImagesEntity;
 import com.example.gulimall.product.entity.SpuInfoDescEntity;
+import com.example.gulimall.product.feign.SeckillFeignServer;
 import com.example.gulimall.product.service.*;
+import com.example.gulimall.product.vo.SeckillInfoVo;
 import com.example.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.example.gulimall.product.vo.SkuItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     private SkuSaleAttrValueService skuSaleAttrValueService;
     @Autowired
     private ThreadPoolExecutor executor;
+    @Autowired
+    SeckillFeignServer seckillFeignServer;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -102,7 +107,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     }
 
     /**
-     *  使用异步线程方式，进行多表查询
+     * 使用异步线程方式，进行多表查询
      */
     @Override
     public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException {
@@ -136,8 +141,20 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuItemVo.setImages(images);
         }, executor);
 
+        //远程调用秒杀服务查询秒杀信息
+        CompletableFuture<Void> seckillFuture = CompletableFuture.runAsync(() -> {
+            R r = seckillFeignServer.getSkuSeckillInfo(skuId);
+            if (r.getCode() == 0) {
+                SeckillInfoVo redisTo = r.getData("data", new TypeReference<SeckillInfoVo>() {
+                });
+                if (redisTo != null) {
+                    skuItemVo.setSeckillInfoVo(redisTo);
+                }
+            }
+        }, executor);
+
         //等待线程全部完成
-        CompletableFuture.allOf(saleAttrFuture, descFuture, baseAttrFuture, imagesFuture).get();
+        CompletableFuture.allOf(saleAttrFuture, descFuture, baseAttrFuture, imagesFuture, seckillFuture).get();
         return skuItemVo;
     }
 

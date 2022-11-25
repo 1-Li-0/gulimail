@@ -1,5 +1,6 @@
 package com.example.gulimall.product.web;
 
+import com.alibaba.fastjson.JSON;
 import com.example.gulimall.product.service.SkuInfoService;
 import com.example.gulimall.product.vo.SkuItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ public class ItemController {
             e.printStackTrace();
         }
         model.addAttribute("item",skuItemVo);
+        System.out.println(skuItemVo.getSeckillInfoVo());
         return "item";
     }
 }

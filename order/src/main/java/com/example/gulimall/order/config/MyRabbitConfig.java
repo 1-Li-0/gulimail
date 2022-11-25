@@ -121,4 +121,20 @@ public class MyRabbitConfig {
                 "order.release.other.#",
                 null);
     }
+
+    /**
+     *  监听秒杀服务需要的队列和绑定关系
+     */
+    @Bean
+    public Queue orderSeckillOrderQueue(){
+        return new Queue("order.seckill.order.queue",true,false,false);
+    }
+    @Bean
+    public Binding orderSeckillOrderBinding(){
+        return new Binding("stock.seckill.order.queue",
+                Binding.DestinationType.QUEUE,
+                "order-event-exchange",
+                "order.seckill.order",
+                null);
+    }
 }

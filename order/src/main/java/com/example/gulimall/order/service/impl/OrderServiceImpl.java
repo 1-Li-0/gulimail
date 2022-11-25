@@ -8,6 +8,7 @@ import com.example.common.constant.OrderStatusEnum;
 import com.example.common.to.MemberRespVo;
 import com.example.common.to.OrderTo;
 import com.example.common.to.SkuHasStockVo;
+import com.example.common.to.mq.SeckillOrderTo;
 import com.example.common.utils.R;
 import com.example.gulimall.order.dao.OrderItemDao;
 import com.example.gulimall.order.entity.MqMessageEntity;
@@ -94,6 +95,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
         OrderConfirmVo confirmVo = new OrderConfirmVo();
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
+        //获取当前请求的请求参数
         RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
 //        RequestAttributes attributes = RequestContextHolder.currentRequestAttributes();
         //选择支付的购物项【重新从购物车获取数据】
@@ -214,7 +216,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             CorrelationData correlationData = new CorrelationData(orderTo.getOrderSn());
             String exchange = "order-event-exchange";
             String routingKey = "order.release.other";
-            /** 未创建相关service和dao
+            /** 未创建消息回调相关service和dao
              * 将correlationData.getId()作为消息id，orderTo对象JSON转化的内容作为字符串内容，对象类型，发送状态（0-新建）等信息保存在数据库
              * MqMessageEntity messageEntity = new MqMessageEntity();
              * messageEntity.setMessageId(correlationData.getId());
@@ -255,7 +257,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
         IPage<OrderEntity> page = this.page(
                 new Query<OrderEntity>().getPage(params),
-                new QueryWrapper<OrderEntity>().eq("member_id",memberRespVo.getId()).orderByDesc("id")
+                new QueryWrapper<OrderEntity>().eq("member_id", memberRespVo.getId()).orderByDesc("id")
         );
         List<OrderEntity> orderEntities = page.getRecords().stream().map(order -> {
             List<OrderItemEntity> itemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
@@ -280,10 +282,42 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         paymentInfo.setCallbackTime(vo.getNotify_time());
         paymentInfoService.save(paymentInfo);
         //修改订单状态
-        if ("TRADE_SUCCESS".equals(vo.getTrade_status()) || "TRADE_FINISH".equals(vo.getTrade_status())){
-            this.baseMapper.updateOrderStatus(vo.getOut_trade_no(),OrderStatusEnum.PAYED.getCode());
+        if ("TRADE_SUCCESS".equals(vo.getTrade_status()) || "TRADE_FINISH".equals(vo.getTrade_status())) {
+            this.baseMapper.updateOrderStatus(vo.getOut_trade_no(), OrderStatusEnum.PAYED.getCode());
         }
         return "success";
+    }
+
+    /**
+     * 创建秒杀订单和订单项对象并保存
+     */
+    @Override
+    public void createSeckillOrder(SeckillOrderTo seckillOrder) {
+        //保存订单
+        OrderEntity order = new OrderEntity();
+        order.setOrderSn(seckillOrder.getOrderSn());
+        order.setCreateTime(new Date());
+        order.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        order.setMemberId(seckillOrder.getMemberId());
+        BigDecimal multiply = seckillOrder.getSeckillPrice().multiply(new BigDecimal("" + seckillOrder.getNum()));
+        order.setPayAmount(multiply);
+        this.save(order);
+        //保存订单项
+        OrderItemEntity orderItem = new OrderItemEntity();
+        orderItem.setOrderSn(seckillOrder.getOrderSn());
+        orderItem.setRealAmount(multiply);
+        orderItem.setSkuQuantity(seckillOrder.getNum());
+        orderItem.setSkuId(seckillOrder.getSkuId());
+        //TODO 远程调用查询sku和spu信息(异步线程分别查询/分布式锁)
+        R r = productFeignServer.getSpuInfoBySkuId(seckillOrder.getSkuId());
+        if (r.getCode() == 0) {
+            SpuInfoVo spuInfoVo = r.getData("data", new TypeReference<SpuInfoVo>() {
+            });
+            orderItem.setSpuId(spuInfoVo.getId());
+            orderItem.setSpuName(spuInfoVo.getSpuName());
+            orderItem.setSpuBrand(spuInfoVo.getBrandId().toString());
+        }
+        orderItemService.save(orderItem);
     }
 
     /**
