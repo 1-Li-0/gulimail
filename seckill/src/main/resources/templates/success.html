@@ -3,13 +3,13 @@
 <head>
     <meta charset="utf-8"/>
     <title></title>
-    <script type="text/javascript" src="/static/cart/js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="/static/cart/bootstrap/js/bootstrap.js"></script>
-    <script type="text/javascript" src="/static/cart/js/swiper.min.js"></script>
-    <script src="/static/cart/js/swiper.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/cart/css/swiper.min.css"/>
-    <link rel="stylesheet" type="text/css" href="/static/cart/bootstrap/css/bootstrap.css"/>
-    <link rel="stylesheet" type="text/css" href="/static/cart/css/success.css"/>
+    <script type="text/javascript" src="http://cart.gulimall.com/static/cart/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="http://cart.gulimall.com/static/cart/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="http://cart.gulimall.com/static/cart/js/swiper.min.js"></script>
+    <script src="http://cart.gulimall.com/static/cart/js/swiper.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cart.gulimall.com/static/cart/css/swiper.min.css"/>
+    <link rel="stylesheet" type="text/css" href="http://cart.gulimall.com/static/cart/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" type="text/css" href="http://cart.gulimall.com/static/cart/css/success.css"/>
 
 </head>
 
@@ -33,7 +33,7 @@
             <li class="spacer"></li>
 
             <li>
-                <a href="/static/cart//javascript:;">我的订单</a>
+                <a href="http://cart.gulimall.com/static/cart//javascript:;">我的订单</a>
             </li>
 
 
@@ -47,7 +47,7 @@
 
         <div class="nav_top">
             <div class="nav_top_one">
-                <a href="http://gulimall.com"><img src="/static/cart/img/logo1.jpg" style="height: 60px;width:180px;"/></a>
+                <a href="http://gulimall.com"><img src="http://cart.gulimall.com/static/cart/img/logo1.jpg" style="height: 60px;width:180px;"/></a>
             </div>
             <div class="nav_top_two"><input type="text"/>
                 <button>搜索</button>
@@ -64,40 +64,17 @@
     <div class="success-wrap">
         <div class="w" id="result">
             <div class="m succeed-box">
-                <div th:if="${item != null}" class="mc success-cont">
-                    <div class="success-lcol">
-                        <div class="success-top"><b class="succ-icon"></b>
-                            <h3 class="ftx-02">商品已成功加入购物车</h3></div>
-                        <div class="p-item">
-                            <div class="p-img">
-                                <a href="/javascript:;" target="_blank"><img style="height: 60px;width:60px;"
-                                                                             th:src="${item.image}"></a>
-                            </div>
-                            <div class="p-info">
-                                <div class="p-name">
-                                    <a th:href="'http://item.gulimall.com/'+${item.skuId}+'.html'"
-                                       th:text="${item.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
-                                </div>
-                                <div class="p-extra"><span class="txt" th:text="'数量：'+${item.count}">  数量：1</span></div>
-                            </div>
-                            <div class="clr"></div>
-                        </div>
-                    </div>
-                    <div class="success-btns success-btns-new">
-                        <div class="success-ad">
-                            <a href="/static/cart//#none"></a>
-                        </div>
-                        <div class="clr"></div>
-                        <div class="bg_shop">
-                            <a class="btn-tobback"
-                               th:href="'http://item.gulimall.com/'+${item.skuId}+'.html'">查看商品详情</a>
-                            <a class="btn-addtocart" href="http://cart.gulimall.com/cart.html"
-                               id="GotoShoppingCart"><b></b>去购物车结算</a>
-                        </div>
-                    </div>
+                <div th:if="${data.result}" class="mc success-cont">
+                    <h2>秒杀成功，订单号：
+                        <b style="color: red" th:text="${data.seckillResult}"></b>
+                        <a style="color: blue" th:href="${'http://order.gulimall.com/payOrder?orderSn='+data.seckillResult}">去支付</a>
+                    </h2>
                 </div>
-                <div th:if="${item == null}" class="mc success-cont">
-                    <h2>购物车中无此商品</h2><a href="http://gulimall.com">去购物</a>
+                <div th:if="${!data.result}" class="mc success-cont">
+                    <h2>秒杀失败，原因：
+                        <b style="color: red" th:text="${data.seckillResult}"></b>
+                        <a href="http://gulimall.com">去购物</a>
+                    </h2>
                 </div>
             </div>
         </div>
@@ -105,6 +82,6 @@
 
 </div>
 </body>
-<script type="text/javascript" src="/static/cart/js/success.js"></script>
+<script type="text/javascript" src="http://cart.gulimall.com/static/cart/js/success.js"></script>
 
 </html>

@@ -18,7 +18,7 @@ public class PayWebController {
     OrderService orderService;
 
     /**
-     *  注解参数produces：声明产生的数据是html页面，而不是json（pay实际是一个表单页面的html代码，提交给支付宝，自动跳转支付界面）
+     *  注解参数produces：声明产生的数据是html页面，而不是json（String pay实际是一个表单页面的html代码，提交给支付宝，自动跳转支付界面）
      */
     @GetMapping(value = "/payOrder",produces = "text/html")
     public @ResponseBody String payOrder(@RequestParam("orderSn") String orderSn) throws AlipayApiException {

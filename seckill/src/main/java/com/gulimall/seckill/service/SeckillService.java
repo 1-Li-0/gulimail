@@ -1,6 +1,7 @@
 package com.gulimall.seckill.service;
 
 import com.gulimall.seckill.to.SeckillSkusInfoRedisTo;
+import com.gulimall.seckill.vo.SeckillRespVo;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface SeckillService {
 
     SeckillSkusInfoRedisTo getSkuSeckillInfo(Long skuId);
 
-    String seckill(String seckillid, String code, Integer num);
+    SeckillRespVo seckill(String seckillid, String code, Integer num);
 }

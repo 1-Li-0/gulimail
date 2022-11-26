@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@RabbitListener(queues = {"stock.seckill.order.queue"})
+@RabbitListener(queues = {"order.seckill.order.queue"})
 @Component
 public class OrderSeckillListener {
     @Autowired

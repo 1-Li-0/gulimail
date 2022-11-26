@@ -131,7 +131,7 @@ public class MyRabbitConfig {
     }
     @Bean
     public Binding orderSeckillOrderBinding(){
-        return new Binding("stock.seckill.order.queue",
+        return new Binding("order.seckill.order.queue",
                 Binding.DestinationType.QUEUE,
                 "order-event-exchange",
                 "order.seckill.order",

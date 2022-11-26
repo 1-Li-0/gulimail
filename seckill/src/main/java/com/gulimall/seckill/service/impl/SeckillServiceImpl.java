@@ -10,6 +10,7 @@ import com.gulimall.seckill.feign.CouponFeignServer;
 import com.gulimall.seckill.feign.ProductFeignServer;
 import com.gulimall.seckill.interceptor.LoginUserInterceptor;
 import com.gulimall.seckill.service.SeckillService;
+import com.gulimall.seckill.vo.SeckillRespVo;
 import com.gulimall.seckill.vo.SeckillSessionsWithSkus;
 import com.gulimall.seckill.to.SeckillSkusInfoRedisTo;
 import com.gulimall.seckill.vo.SeckillSkuRelationVo;
@@ -118,7 +119,10 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     @Override
-    public String seckill(String seckillid, String code, Integer num) {
+    public SeckillRespVo seckill(String seckillid, String code, Integer num) {
+        SeckillRespVo resp = new SeckillRespVo();
+        resp.setResult(false);
+
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
         BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SKUSECKILL_CACHE_PREFIX);
         String s = hashOps.get(seckillid);
@@ -148,13 +152,16 @@ public class SeckillServiceImpl implements SeckillService {
                                 orderTo.setMemberId(memberRespVo.getId());
                                 //MQ发消息（order服务监听，所以本服务不需要创建交换机和队列，也不用配置手动ack）
                                 rabbitTemplate.convertAndSend("order-event-exchange", "order.seckill.order", orderTo);
-                                return orderSn;
-                            } else return "库存不足";
-                        } else return "秒杀商品已经购买过，不能重复购买";
-                    } else return "购买的数量超过限制";
-                } else return "秒杀验证失败";
-            } else return "秒杀超时";
-        } else return "秒杀商品不存在";
+                                resp.setResult(true);
+                                resp.setSeckillResult(orderSn);
+                            } else resp.setSeckillResult("库存不足");
+                        } else resp.setSeckillResult("秒杀商品已经购买过，不能重复购买");
+                    } else resp.setSeckillResult("购买的数量超过限制");
+                } else resp.setSeckillResult("秒杀验证失败");
+            } else resp.setSeckillResult("秒杀超时");
+        } else resp.setSeckillResult("秒杀商品不存在");
+
+        return resp;
     }
 
     private void saveSessionInfos(List<SeckillSessionsWithSkus> sessions) {
@@ -201,6 +208,7 @@ public class SeckillServiceImpl implements SeckillService {
                         // redisson支持设置信号量来代替mysql扣减库存，库存数量就是信号量的值 --> 【限流】
                         RSemaphore semaphore = redissonClient.getSemaphore(SKU_STOCK_SEMAPHORE + randomCode);
                         semaphore.trySetPermits(skuRelationVo.getSeckillCount());
+                        //TODO 信号量设置后需要锁定库存；秒杀活动结束后需要按剩余信号量解锁库存
                         //操作redis
                         hashOps.put(key, JSON.toJSONString(redisTo));
                     }
