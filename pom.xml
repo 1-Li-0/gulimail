@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>seckill</module>
         <module>coupon</module>
         <module>member</module>
         <module>order</module>

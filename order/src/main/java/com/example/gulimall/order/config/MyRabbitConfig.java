@@ -8,6 +8,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -21,12 +22,6 @@ public class MyRabbitConfig {
     @Autowired
     RabbitTemplate rabbitTemplate;
 
-    //使用JSON序列化机制进行消息对象转换
-    @Bean
-    public MessageConverter messageConverter(){
-        return new Jackson2JsonMessageConverter();
-    }
-
     /** 定制RabbitTemplate【消息确认机制pulisher，consumer（手动ack）】
      *  1.每个消息都要在数据库【redis/mysql】中记录日志【成功抵达/错误抵达】；定期将失败的消息再发一次
      *    【数据库中保存了消息的交换机，路由键，消息对象的JSON字符串，消息对象类型...】
@@ -38,6 +33,7 @@ public class MyRabbitConfig {
      *   setReturnCallback(new RabbitTemplate.ReturnCallback() {})
      */
     @PostConstruct
+    @Primary
     public void initRabbitTemplate(){
         rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
             /** 发送消息成功或者失败都触发这个回调函数

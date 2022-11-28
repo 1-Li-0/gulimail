@@ -20,6 +20,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
                              Object handler) throws Exception {
         //内部服务访问需要放行
         boolean match = new AntPathMatcher().match("/member/**", request.getRequestURI());
+        System.out.println("执行了拦截器");
         if (match){
             return true;
         }

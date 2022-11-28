@@ -44,9 +44,11 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+    sentinel:
+      transport:
+        dashboard: localhost:8333
 #  resources:
 #    add-mappings: false
-
 
 #mybatis
 mybatis-plus:
@@ -68,7 +70,6 @@ mybatis-plus:
     call-setters-on-nulls: true
     jdbc-type-for-null: 'null'
 
-
 renren:
   redis:
     open: false
@@ -81,3 +82,9 @@ renren:
     # token有效时长，7天，单位秒
     expire: 604800
     header: token
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

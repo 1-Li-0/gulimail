@@ -26,10 +26,21 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+    sentinel:
+      transport:
+        dashboard: localhost:8333 #sentinel的启动地址
+        port: 8719 #sentinel的连接端口（默认8719）
   application:
     name: order
   mvc:
     date-format: yyyy-MM-dd HH:mm:ss
+
+#暴露端口
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 
 mybatis-plus:
   mapper-locations:
