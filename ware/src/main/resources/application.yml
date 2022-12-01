@@ -25,6 +25,14 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual #消息确认模式，消费端不进行自动确认（必须开启此配置）
+  zipkin:
+    base-url: http://192.168.203.128:9411 #配置url地址收集链路信息
+    discovery-client-enabled: false #不开启服务发现功能
+    sender:
+      type: web #传输数据的方式
+  sleuth:
+    sampler:
+      probability: 1 #链路信息抽样采集率，1表示100%，默认0.1（10%）
 
 mybatis-plus:
   mapper-locations:
@@ -46,3 +54,6 @@ management:
     web:
       exposure:
         include: '*'
+feign:
+  sentinel:
+    enabled: true

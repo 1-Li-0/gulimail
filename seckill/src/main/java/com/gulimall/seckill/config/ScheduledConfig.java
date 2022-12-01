@@ -35,12 +35,12 @@ public class ScheduledConfig {
      *          spring.task.scheduling.pool.size=5
      *      3）让定时任务异步执行（此方法需要使用@EnableAsync+@Async注解），可以重新配置线程池
      */
-    @Async
+/*    @Async
     @Scheduled(cron = "* * * ? * MON")
     public void hello() throws InterruptedException {
         log.info("hello...");
         Thread.sleep(3000);
-    }
+    }*/
 
     //配置线程池
     @Autowired

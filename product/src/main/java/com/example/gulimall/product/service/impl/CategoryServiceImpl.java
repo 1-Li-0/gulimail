@@ -84,7 +84,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return parentPath.toArray(new Long[0]);
     }
 
-    /**
+    /** 级联更新菜单
      * 缓存失效，此处可以直接删除分区: @CacheEvict(value = "category",allEntries = true)
      * @param category 需要更新的分类对象
      * @Caching 同时进行多种缓存操作
