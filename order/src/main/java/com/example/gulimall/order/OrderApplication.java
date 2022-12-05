@@ -9,6 +9,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
+ *  例：在类A里面有方法a 和方法b， 然后方法b上面用 @Transactional加了方法级别的事务，在方法a里面 调用了方法b， 方法b里面的事务不会生效。
  *  本地事务在spring中失效，原因：绕过了代理对象，直接调用本类中的方法【相当于将调用的方法体直接复制在本方法事务中】
  *  解决方法：使用代理对象
  *  注意：不能在本类中注入自己的bean对象，循环依赖
